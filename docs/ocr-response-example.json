@@ -1,0 +1,414 @@
+{
+  "extraction_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "status": "partial",
+  "model": {
+    "provider": "azure",
+    "model_id": "prebuilt-document",
+    "version": "2024-11-30"
+  },
+  "source_document": {
+    "filename": "CW1_scan_20250416.pdf",
+    "mime_type": "application/pdf",
+    "page_count": 4,
+    "quality_assessment": {
+      "overall_quality": "fair",
+      "dpi_estimate": 200,
+      "skew_degrees": 1.3,
+      "issues": ["faint_text", "folded_corner"]
+    }
+  },
+  "extracted_at": "2026-04-16T11:15:30.000Z",
+  "processing_time_ms": 8420,
+  "overall_confidence": 0.82,
+  "fields_extracted": 55,
+  "fields_total": 62,
+  "form_data": {
+    "application": {
+      "application_reference": {
+        "value": "LAA-2025-CW1-00472",
+        "raw_value": "LAA-2025-CW1-OO472",
+        "confidence": 0.88,
+        "source_page": 1,
+        "bounding_box": { "top": 0.05, "left": 0.60, "width": 0.35, "height": 0.03 }
+      },
+      "form_type": {
+        "value": "CW1 — Legal Help",
+        "confidence": 0.99,
+        "source_page": 1,
+        "bounding_box": { "top": 0.02, "left": 0.10, "width": 0.50, "height": 0.04 }
+      },
+      "is_exceptional_case_funding": {
+        "value": false,
+        "confidence": 0.95,
+        "source_page": 1,
+        "bounding_box": { "top": 0.10, "left": 0.05, "width": 0.90, "height": 0.03 }
+      },
+      "ecf_reference": {
+        "value": null,
+        "confidence": 0.0,
+        "source_page": 1
+      }
+    },
+    "provider_details": {
+      "provider_name": {
+        "value": "Henderson & Associates Solicitors",
+        "confidence": 0.94,
+        "source_page": 1,
+        "bounding_box": { "top": 0.15, "left": 0.10, "width": 0.50, "height": 0.03 }
+      },
+      "laa_account_number": {
+        "value": "0A123B",
+        "raw_value": "OA123B",
+        "confidence": 0.72,
+        "source_page": 1,
+        "bounding_box": { "top": 0.19, "left": 0.10, "width": 0.20, "height": 0.03 }
+      },
+      "supplier_number": {
+        "value": "4567890",
+        "confidence": 0.91,
+        "source_page": 1,
+        "bounding_box": { "top": 0.19, "left": 0.40, "width": 0.20, "height": 0.03 }
+      },
+      "office_name": {
+        "value": "Manchester Office",
+        "confidence": 0.89,
+        "source_page": 1,
+        "bounding_box": { "top": 0.23, "left": 0.10, "width": 0.40, "height": 0.03 }
+      },
+      "office_address": {
+        "value": "42 Deansgate",
+        "confidence": 0.87,
+        "source_page": 1,
+        "bounding_box": { "top": 0.27, "left": 0.10, "width": 0.50, "height": 0.03 }
+      },
+      "office_postcode": {
+        "value": "M3 2EG",
+        "confidence": 0.93,
+        "source_page": 1,
+        "bounding_box": { "top": 0.31, "left": 0.10, "width": 0.15, "height": 0.03 }
+      },
+      "office_telephone": {
+        "value": "0161 234 5678",
+        "confidence": 0.90,
+        "source_page": 1,
+        "bounding_box": { "top": 0.31, "left": 0.40, "width": 0.25, "height": 0.03 }
+      },
+      "solicitor_name": {
+        "value": "Sarah Henderson",
+        "confidence": 0.92,
+        "source_page": 1,
+        "bounding_box": { "top": 0.35, "left": 0.10, "width": 0.35, "height": 0.03 }
+      },
+      "solicitor_reference": {
+        "value": "SH/PATEL/2025/042",
+        "confidence": 0.85,
+        "source_page": 1,
+        "bounding_box": { "top": 0.35, "left": 0.55, "width": 0.35, "height": 0.03 }
+      }
+    },
+    "client_details": {
+      "title": {
+        "value": "Mr",
+        "confidence": 0.96,
+        "source_page": 2,
+        "bounding_box": { "top": 0.08, "left": 0.10, "width": 0.05, "height": 0.03 }
+      },
+      "first_name": {
+        "value": "Rajesh",
+        "confidence": 0.93,
+        "source_page": 2,
+        "bounding_box": { "top": 0.08, "left": 0.20, "width": 0.20, "height": 0.03 }
+      },
+      "initials": {
+        "value": "R K",
+        "confidence": 0.80,
+        "source_page": 2,
+        "bounding_box": { "top": 0.08, "left": 0.45, "width": 0.08, "height": 0.03 }
+      },
+      "surname": {
+        "value": "Patel",
+        "confidence": 0.97,
+        "source_page": 2,
+        "bounding_box": { "top": 0.12, "left": 0.10, "width": 0.20, "height": 0.03 }
+      },
+      "surname_at_birth": {
+        "value": null,
+        "confidence": 0.0,
+        "source_page": 2,
+        "bounding_box": { "top": 0.12, "left": 0.45, "width": 0.30, "height": 0.03 }
+      },
+      "date_of_birth": {
+        "value": "1987-03-15",
+        "raw_value": "15/O3/1987",
+        "confidence": 0.78,
+        "source_page": 2,
+        "bounding_box": { "top": 0.16, "left": 0.10, "width": 0.25, "height": 0.03 }
+      },
+      "national_insurance_number": {
+        "value": "AB123456C",
+        "raw_value": "AB12 34 56 C",
+        "confidence": 0.84,
+        "source_page": 2,
+        "bounding_box": { "top": 0.16, "left": 0.45, "width": 0.25, "height": 0.03 }
+      },
+      "sex": {
+        "value": "Male",
+        "confidence": 0.91,
+        "source_page": 2,
+        "bounding_box": { "top": 0.20, "left": 0.10, "width": 0.10, "height": 0.03 }
+      },
+      "marital_status": {
+        "value": "Married",
+        "confidence": 0.88,
+        "source_page": 2,
+        "bounding_box": { "top": 0.20, "left": 0.30, "width": 0.15, "height": 0.03 }
+      },
+      "place_of_birth_town": {
+        "value": null,
+        "raw_value": "B_rm__gham",
+        "confidence": 0.22,
+        "source_page": 2,
+        "bounding_box": { "top": 0.24, "left": 0.10, "width": 0.25, "height": 0.03 }
+      },
+      "job": {
+        "value": "Software Developer",
+        "confidence": 0.86,
+        "source_page": 2,
+        "bounding_box": { "top": 0.24, "left": 0.45, "width": 0.30, "height": 0.03 }
+      },
+      "current_address": {
+        "value": "14 Maple Road",
+        "confidence": 0.90,
+        "source_page": 2,
+        "bounding_box": { "top": 0.28, "left": 0.10, "width": 0.50, "height": 0.03 }
+      },
+      "current_address_line2": {
+        "value": "Didsbury, Manchester",
+        "confidence": 0.87,
+        "source_page": 2,
+        "bounding_box": { "top": 0.32, "left": 0.10, "width": 0.50, "height": 0.03 }
+      },
+      "postcode": {
+        "value": "M20 6FG",
+        "confidence": 0.95,
+        "source_page": 2,
+        "bounding_box": { "top": 0.36, "left": 0.10, "width": 0.15, "height": 0.03 }
+      }
+    },
+    "case_details": {
+      "category_of_law": {
+        "value": "Family",
+        "confidence": 0.94,
+        "source_page": 3,
+        "bounding_box": { "top": 0.08, "left": 0.10, "width": 0.20, "height": 0.03 }
+      },
+      "matter_type": {
+        "value": "Legal Help",
+        "confidence": 0.97,
+        "source_page": 3,
+        "bounding_box": { "top": 0.08, "left": 0.40, "width": 0.20, "height": 0.03 }
+      },
+      "case_reference": {
+        "value": "FAM-2025-00891",
+        "confidence": 0.82,
+        "source_page": 3,
+        "bounding_box": { "top": 0.12, "left": 0.10, "width": 0.30, "height": 0.03 }
+      },
+      "court_name": {
+        "value": "Manchester Family Court",
+        "confidence": 0.89,
+        "source_page": 3,
+        "bounding_box": { "top": 0.12, "left": 0.50, "width": 0.40, "height": 0.03 }
+      },
+      "proceedings_type": {
+        "value": null,
+        "confidence": 0.0,
+        "source_page": 3,
+        "bounding_box": { "top": 0.16, "left": 0.10, "width": 0.40, "height": 0.03 }
+      },
+      "date_case_started": {
+        "value": "2025-02-10",
+        "raw_value": "10/02/2025",
+        "confidence": 0.91,
+        "source_page": 3,
+        "bounding_box": { "top": 0.20, "left": 0.10, "width": 0.20, "height": 0.03 }
+      },
+      "date_case_ended": {
+        "value": null,
+        "confidence": 0.0,
+        "source_page": 3
+      }
+    },
+    "equal_opportunities": {
+      "ethnicity": {
+        "value": "Asian or Asian British - Indian",
+        "confidence": 0.75,
+        "source_page": 4,
+        "bounding_box": { "top": 0.10, "left": 0.10, "width": 0.50, "height": 0.03 }
+      },
+      "disability": {
+        "not_considered_disabled": {
+          "value": true,
+          "confidence": 0.88,
+          "source_page": 4,
+          "bounding_box": { "top": 0.18, "left": 0.10, "width": 0.04, "height": 0.03 }
+        },
+        "mental_health":        { "value": false, "confidence": 0.92, "source_page": 4 },
+        "blind":                { "value": false, "confidence": 0.92, "source_page": 4 },
+        "learning_disability":  { "value": false, "confidence": 0.92, "source_page": 4 },
+        "long_standing_illness": { "value": false, "confidence": 0.92, "source_page": 4 },
+        "mobility":             { "value": false, "confidence": 0.92, "source_page": 4 },
+        "deaf":                 { "value": false, "confidence": 0.92, "source_page": 4 },
+        "hearing_impaired":     { "value": false, "confidence": 0.92, "source_page": 4 },
+        "visually_impaired":    { "value": false, "confidence": 0.92, "source_page": 4 },
+        "other":                { "value": false, "confidence": 0.92, "source_page": 4 },
+        "unknown":              { "value": false, "confidence": 0.92, "source_page": 4 },
+        "prefer_not_to_say":    { "value": false, "confidence": 0.92, "source_page": 4 }
+      }
+    },
+    "proceedings": {
+      "proceedings_description": {
+        "value": "Client seeking legal help regarding child arrangement order",
+        "confidence": 0.76,
+        "source_page": 3,
+        "bounding_box": { "top": 0.30, "left": 0.10, "width": 0.80, "height": 0.06 }
+      },
+      "scope_limitation": {
+        "value": "All steps up to and including counsel's opinion",
+        "confidence": 0.71,
+        "source_page": 3,
+        "bounding_box": { "top": 0.38, "left": 0.10, "width": 0.80, "height": 0.04 }
+      },
+      "delegated_functions_used": {
+        "value": false,
+        "confidence": 0.90,
+        "source_page": 3,
+        "bounding_box": { "top": 0.44, "left": 0.10, "width": 0.04, "height": 0.03 }
+      },
+      "delegated_functions_date": {
+        "value": null,
+        "confidence": 0.0,
+        "source_page": 3
+      }
+    },
+    "costs": {
+      "profit_costs": {
+        "value": 350.00,
+        "raw_value": "£350.OO",
+        "confidence": 0.83,
+        "source_page": 4,
+        "bounding_box": { "top": 0.50, "left": 0.60, "width": 0.15, "height": 0.03 }
+      },
+      "disbursements": {
+        "value": 45.50,
+        "raw_value": "£45.50",
+        "confidence": 0.91,
+        "source_page": 4,
+        "bounding_box": { "top": 0.54, "left": 0.60, "width": 0.15, "height": 0.03 }
+      },
+      "counsel_costs": {
+        "value": 0.00,
+        "confidence": 0.95,
+        "source_page": 4,
+        "bounding_box": { "top": 0.58, "left": 0.60, "width": 0.15, "height": 0.03 }
+      },
+      "vat_on_profit_costs": {
+        "value": 70.00,
+        "confidence": 0.88,
+        "source_page": 4,
+        "bounding_box": { "top": 0.62, "left": 0.60, "width": 0.15, "height": 0.03 }
+      },
+      "vat_on_disbursements": {
+        "value": null,
+        "raw_value": "£?.10",
+        "confidence": 0.15,
+        "source_page": 4,
+        "bounding_box": { "top": 0.66, "left": 0.60, "width": 0.15, "height": 0.03 }
+      },
+      "vat_on_counsel": {
+        "value": 0.00,
+        "confidence": 0.95,
+        "source_page": 4,
+        "bounding_box": { "top": 0.70, "left": 0.60, "width": 0.15, "height": 0.03 }
+      },
+      "travel_and_waiting": {
+        "value": 25.00,
+        "confidence": 0.87,
+        "source_page": 4,
+        "bounding_box": { "top": 0.74, "left": 0.60, "width": 0.15, "height": 0.03 }
+      },
+      "total_claim": {
+        "value": 490.50,
+        "raw_value": "£490.50",
+        "confidence": 0.92,
+        "source_page": 4,
+        "bounding_box": { "top": 0.80, "left": 0.60, "width": 0.15, "height": 0.04 }
+      }
+    },
+    "declaration": {
+      "solicitor_signature_present": {
+        "value": true,
+        "confidence": 0.85,
+        "source_page": 4,
+        "bounding_box": { "top": 0.88, "left": 0.10, "width": 0.30, "height": 0.05 }
+      },
+      "client_signature_present": {
+        "value": true,
+        "confidence": 0.79,
+        "source_page": 4,
+        "bounding_box": { "top": 0.88, "left": 0.55, "width": 0.30, "height": 0.05 }
+      },
+      "date_signed": {
+        "value": "2025-04-01",
+        "raw_value": "01/04/2025",
+        "confidence": 0.90,
+        "source_page": 4,
+        "bounding_box": { "top": 0.94, "left": 0.10, "width": 0.20, "height": 0.03 }
+      }
+    }
+  },
+  "warnings": [
+    {
+      "code": "LOW_CONFIDENCE",
+      "message": "Place of birth could not be reliably extracted due to faint text. Raw value: 'B_rm__gham'",
+      "field": "client_details.place_of_birth_town",
+      "severity": "error"
+    },
+    {
+      "code": "LOW_CONFIDENCE",
+      "message": "VAT on disbursements is illegible — amount could not be determined",
+      "field": "costs.vat_on_disbursements",
+      "severity": "error"
+    },
+    {
+      "code": "OCR_CORRECTION",
+      "message": "Application reference contained 'OO' which was normalised to '00' (common OCR confusion between letter O and digit 0)",
+      "field": "application.application_reference",
+      "severity": "info"
+    },
+    {
+      "code": "OCR_CORRECTION",
+      "message": "Date of birth contained 'O3' which was normalised to '03'",
+      "field": "client_details.date_of_birth",
+      "severity": "info"
+    },
+    {
+      "code": "MISSING_FIELD",
+      "message": "Proceedings type field appears blank on the form",
+      "field": "case_details.proceedings_type",
+      "severity": "warning"
+    },
+    {
+      "code": "QUALITY_ISSUE",
+      "message": "Folded corner detected on page 2 — some fields in the lower-right quadrant may be affected",
+      "field": null,
+      "severity": "warning"
+    },
+    {
+      "code": "SIGNATURE_LOW_QUALITY",
+      "message": "Client signature is present but partially smudged — manual verification recommended",
+      "field": "declaration.client_signature_present",
+      "severity": "warning"
+    }
+  ]
+}

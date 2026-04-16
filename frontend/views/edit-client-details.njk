@@ -1,0 +1,156 @@
+{% from "govuk/components/input/macro.njk"          import govukInput %}
+{% from "govuk/components/select/macro.njk"         import govukSelect %}
+{% from "govuk/components/radios/macro.njk"         import govukRadios %}
+{% from "govuk/components/button/macro.njk"         import govukButton %}
+{% from "govuk/components/error-summary/macro.njk"  import govukErrorSummary %}
+
+{% extends "layout.njk" %}
+
+{% block pageTitle %}
+  {% if errorList | length %}Error: {% endif %}Change client details — LAA CW1 Form Submission
+{% endblock %}
+
+{% block content %}
+
+  <a href="/review/{{ data.id }}?mock=true" class="govuk-back-link">Back to check your answers</a>
+
+  {% if errorList | length %}
+    {{ govukErrorSummary({
+      titleText: "Some information could not be extracted",
+      descriptionText: "The following fields need to be completed.",
+      errorList: errorList
+    }) }}
+  {% endif %}
+
+  <h1 class="govuk-heading-l">Change client details</h1>
+
+  <form method="POST" action="/edit/{{ data.id }}/client-details" novalidate>
+
+    {{ govukSelect({
+      id: "title",
+      name: "title",
+      label: { text: "Title", classes: "govuk-label--m" },
+      errorMessage: { text: "Select a title — this could not be extracted" } if missing.title,
+      items: [
+        { value: "",     text: "Select title" },
+        { value: "Mr",   text: "Mr",   selected: data.title === "Mr" },
+        { value: "Mrs",  text: "Mrs",  selected: data.title === "Mrs" },
+        { value: "Miss", text: "Miss", selected: data.title === "Miss" },
+        { value: "Ms",   text: "Ms",   selected: data.title === "Ms" },
+        { value: "Dr",   text: "Dr",   selected: data.title === "Dr" }
+      ]
+    }) }}
+
+    {{ govukInput({
+      id: "first_name",
+      name: "first_name",
+      label: { text: "First name", classes: "govuk-label--m" },
+      autocomplete: "given-name",
+      errorMessage: { text: "Enter a first name — this could not be extracted" } if missing.first_name,
+      value: data.first_name
+    }) }}
+
+    {{ govukInput({
+      id: "surname",
+      name: "surname",
+      label: { text: "Surname", classes: "govuk-label--m" },
+      autocomplete: "family-name",
+      errorMessage: { text: "Enter a surname — this could not be extracted" } if missing.surname,
+      value: data.surname
+    }) }}
+
+    {{ govukInput({
+      id: "surname_at_birth",
+      name: "surname_at_birth",
+      label: { text: "Surname at birth (if different)", classes: "govuk-label--m" },
+      value: data.surname_at_birth or ""
+    }) }}
+
+    {{ govukInput({
+      id: "date_of_birth",
+      name: "date_of_birth",
+      label: { text: "Date of birth", classes: "govuk-label--m" },
+      hint: { text: "For example, 1990-06-15" },
+      classes: "govuk-input--width-10",
+      errorMessage: { text: "Enter a date of birth — this could not be extracted" } if missing.date_of_birth,
+      value: data.date_of_birth
+    }) }}
+
+    {{ govukInput({
+      id: "national_insurance_number",
+      name: "national_insurance_number",
+      label: { text: "National Insurance number", classes: "govuk-label--m" },
+      hint: { text: "For example, QQ 12 34 56 C" },
+      classes: "govuk-input--width-10",
+      errorMessage: { text: "Enter a National Insurance number — this could not be extracted" } if missing.national_insurance_number,
+      value: data.national_insurance_number or ""
+    }) }}
+
+    {{ govukRadios({
+      name: "sex",
+      fieldset: {
+        legend: { text: "Sex", classes: "govuk-fieldset__legend--m" }
+      },
+      errorMessage: { text: "Select sex — this could not be extracted" } if missing.sex,
+      items: [
+        { value: "Male",              text: "Male",              checked: data.sex === "Male" },
+        { value: "Female",            text: "Female",            checked: data.sex === "Female" },
+        { value: "Prefer not to say", text: "Prefer not to say", checked: data.sex === "Prefer not to say" }
+      ]
+    }) }}
+
+    {{ govukSelect({
+      id: "marital_status",
+      name: "marital_status",
+      label: { text: "Marital status", classes: "govuk-label--m" },
+      errorMessage: { text: "Select a marital status — this could not be extracted" } if missing.marital_status,
+      items: [
+        { value: "",            text: "Select marital status" },
+        { value: "Single",      text: "Single",      selected: data.marital_status === "Single" },
+        { value: "Married",     text: "Married",     selected: data.marital_status === "Married" },
+        { value: "Divorced",    text: "Divorced",    selected: data.marital_status === "Divorced" },
+        { value: "Widowed",     text: "Widowed",     selected: data.marital_status === "Widowed" },
+        { value: "Cohabiting",  text: "Cohabiting",  selected: data.marital_status === "Cohabiting" },
+        { value: "Separated",   text: "Separated",   selected: data.marital_status === "Separated" }
+      ]
+    }) }}
+
+    {{ govukInput({
+      id: "place_of_birth_town",
+      name: "place_of_birth_town",
+      label: { text: "Place of birth (town)", classes: "govuk-label--m" },
+      errorMessage: { text: "Enter a place of birth — this could not be extracted" } if missing.place_of_birth_town,
+      value: data.place_of_birth_town or ""
+    }) }}
+
+    {{ govukInput({
+      id: "job",
+      name: "job",
+      label: { text: "Occupation", classes: "govuk-label--m" },
+      errorMessage: { text: "Enter an occupation — this could not be extracted" } if missing.job,
+      value: data.job or ""
+    }) }}
+
+    {{ govukInput({
+      id: "current_address",
+      name: "current_address",
+      label: { text: "Current address", classes: "govuk-label--m" },
+      autocomplete: "street-address",
+      errorMessage: { text: "Enter a current address — this could not be extracted" } if missing.current_address,
+      value: data.current_address or ""
+    }) }}
+
+    {{ govukInput({
+      id: "postcode",
+      name: "postcode",
+      label: { text: "Postcode", classes: "govuk-label--m" },
+      classes: "govuk-input--width-10",
+      autocomplete: "postal-code",
+      errorMessage: { text: "Enter a postcode — this could not be extracted" } if missing.postcode,
+      value: data.postcode or ""
+    }) }}
+
+    {{ govukButton({ text: "Save changes" }) }}
+  </form>
+
+{% endblock %}

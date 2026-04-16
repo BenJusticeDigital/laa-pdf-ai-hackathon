@@ -29,3 +29,11 @@ services:
       - BACKEND_URL=http://app:8081
     depends_on:
       - app
+
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+      no_cache: true
+    ports:
+      - "5173:80"

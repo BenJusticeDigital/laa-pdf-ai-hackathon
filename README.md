@@ -46,6 +46,7 @@ Legal aid providers photograph a completed CW1 form (page 1). The tool extracts 
 
 ## Configuration
 
+### Gemini API Key
 The service requires a Gemini API key to extract data from images.
 Get a free key at [Google AI Studio](https://aistudio.google.com/app/apikey) — no billing required for the free tier.
 
@@ -53,6 +54,21 @@ Set it as an environment variable before running:
 
 ```bash
 export GEMINI_API_KEY=your_key_here
+```
+
+### GOV.UK Notify API Key
+The service integrates with GOV.UK Notify for sending emails.
+Get your API key from the [GOV.UK Notify dashboard](https://www.notifications.service.gov.uk/).
+
+Set it as an environment variable:
+
+```bash
+export NOTIFY_API_KEY=your_notify_api_key_here
+```
+
+Or use the test key from `.env` file:
+```bash
+source .env
 ```
 
 ---
@@ -92,6 +108,13 @@ Base URL: `http://localhost:8081`
 ```bash
 curl http://localhost:8181/actuator/health
 ```
+
+### Send Sample Email (GOV.UK Notify)
+```bash
+curl -X POST "http://localhost:8081/api/notify/send-sample-email?emailAddress=test@example.com"
+```
+
+**Note:** You need to create a template in your GOV.UK Notify account and update the `templateId` in `NotifyService.java`.
 
 ---
 
