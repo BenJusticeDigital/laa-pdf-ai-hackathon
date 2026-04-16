@@ -6,34 +6,41 @@
 package uk.gov.justice.laa.springboot.microservice.api;
 
 import uk.gov.justice.laa.springboot.microservice.model.ImageResponse;
+import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.Generated;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", comments = "Generator version: 7.18.0")
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import jakarta.annotation.Generated;
+
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2026-04-16T10:34:11.527249+01:00[Europe/London]", comments = "Generator version: 7.18.0")
 @Validated
 @Tag(name = "image", description = "the image API")
 public interface ImageApi {
 
     String PATH_UPLOAD_IMAGE = "/api/v1/image";
-
     /**
      * POST /api/v1/image : Upload an image for processing
      *
-     * @param image the image file to process (required)
-     * @param email email address of the submitter (required)
+     * @param image The image file to be processed (required)
+     * @param email Email address of the submitter (required)
      * @return Created (status code 201)
      *         or Bad request (status code 400)
      *         or Unauthorized (status code 401)
@@ -57,15 +64,12 @@ public interface ImageApi {
     @RequestMapping(
         method = RequestMethod.POST,
         value = ImageApi.PATH_UPLOAD_IMAGE,
-        consumes = { "multipart/form-data" },
-        produces = { "application/json" }
+        produces = { "application/json" },
+        consumes = { "multipart/form-data" }
     )
     ResponseEntity<ImageResponse> uploadImage(
-        @Parameter(name = "image", description = "The image file to be processed", required = true)
-        @RequestPart("image") @NotNull MultipartFile image,
-
-        @Parameter(name = "email", description = "Email address of the submitter", required = true)
-        @RequestPart("email") @NotNull @Email String email
+        @Parameter(name = "image", description = "The image file to be processed", required = true) @RequestPart(value = "image", required = true) MultipartFile image,
+        @Parameter(name = "email", description = "Email address of the submitter", required = true) @jakarta.validation.constraints.Email @Valid @RequestParam(value = "email", required = true) String email
     );
-}
 
+}
