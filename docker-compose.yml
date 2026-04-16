@@ -2,6 +2,7 @@ services:
   app:
     build:
       context: .
+      no_cache: true
     ports:
       - "8081:8081"
       - "8181:8181"
@@ -10,11 +11,13 @@ services:
       - SERVER_PORT=8081
       - SPRING_PROFILES_ACTIVE=local
       - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      no_cache: true
     ports:
       - "3000:3000"
     environment:
