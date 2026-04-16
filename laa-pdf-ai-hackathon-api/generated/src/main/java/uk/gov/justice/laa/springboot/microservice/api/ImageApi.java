@@ -32,8 +32,7 @@ import java.util.Map;
 import java.util.Optional;
 import jakarta.annotation.Generated;
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2026-04-16T13:37:25.624190+01:00[Europe/London]", comments = "Generator version: 7.18.0")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2026-04-16T13:44:35.455447+01:00[Europe/London]", comments = "Generator version: 7.18.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2026-04-16T13:55:28.790999+01:00[Europe/London]", comments = "Generator version: 7.18.0")
 @Validated
 @Tag(name = "image", description = "the image API")
 public interface ImageApi {
@@ -93,7 +92,7 @@ public interface ImageApi {
         produces = { "application/json" }
     )
     ResponseEntity<List<ImageSummary>> listImages(
-
+        
     );
 
 

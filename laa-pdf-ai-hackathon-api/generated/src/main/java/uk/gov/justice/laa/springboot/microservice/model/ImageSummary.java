@@ -23,7 +23,7 @@ import jakarta.annotation.Generated;
  * ImageSummary
  */
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2026-04-16T13:37:25.624190+01:00[Europe/London]", comments = "Generator version: 7.18.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2026-04-16T13:55:28.790999+01:00[Europe/London]", comments = "Generator version: 7.18.0")
 public class ImageSummary implements Serializable {
 
   private static final long serialVersionUID = 1L;
