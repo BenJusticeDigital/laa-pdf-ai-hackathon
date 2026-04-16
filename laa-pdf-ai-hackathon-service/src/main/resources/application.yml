@@ -27,6 +27,9 @@ management:
       exposure:
         include: health
 
+gemini:
+  api-key: ${GEMINI_API_KEY:} # set GEMINI_API_KEY environment variable
+
 sentry:
   dsn: # configure dsn url here
   environment: # configure environment name here

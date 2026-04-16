@@ -1,7 +1,8 @@
-.openapi-generator-ignore
 README.md
 pom.xml
 src/main/java/uk/gov/justice/laa/springboot/microservice/api/ApiUtil.java
+src/main/java/uk/gov/justice/laa/springboot/microservice/api/ImageApi.java
 src/main/java/uk/gov/justice/laa/springboot/microservice/api/ItemsApi.java
+src/main/java/uk/gov/justice/laa/springboot/microservice/model/ImageResponse.java
 src/main/java/uk/gov/justice/laa/springboot/microservice/model/Item.java
 src/main/java/uk/gov/justice/laa/springboot/microservice/model/ItemRequestBody.java
