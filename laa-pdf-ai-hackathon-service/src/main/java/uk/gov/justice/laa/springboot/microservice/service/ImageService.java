@@ -1,13 +1,16 @@
 package uk.gov.justice.laa.springboot.microservice.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import uk.gov.justice.laa.springboot.microservice.entity.OcrOutputEntity;
 import uk.gov.justice.laa.springboot.microservice.model.ImageResponse;
 import uk.gov.justice.laa.springboot.microservice.ocr.OcrProvider;
+import uk.gov.justice.laa.springboot.microservice.repository.OcrOutputRepository;
 
 /**
  * Service for handling image submissions.
@@ -21,6 +24,8 @@ import uk.gov.justice.laa.springboot.microservice.ocr.OcrProvider;
 public class ImageService {
 
   private final OcrProvider ocrProvider;
+  private final OcrOutputRepository ocrOutputRepository;
+  private final ObjectMapper objectMapper;
 
   /**
    * Accepts an uploaded image and associated metadata, passes it to the
@@ -41,6 +46,20 @@ public class ImageService {
 
     log.info("Extraction complete for submission [id={}], fields extracted: {}",
         id, extractedData.keySet());
+
+    // Serialize extracted data to JSON and persist to database
+    try {
+      String jsonData = objectMapper.writeValueAsString(extractedData);
+      OcrOutputEntity entity = OcrOutputEntity.builder()
+          .id(id)
+          .data(jsonData)
+          .build();
+      ocrOutputRepository.save(entity);
+      log.info("OCR output saved to database [id={}]", id);
+    } catch (Exception e) {
+      log.error("Failed to persist OCR output [id={}]", id, e);
+      throw new RuntimeException("Failed to save OCR output", e);
+    }
 
     ImageResponse response = new ImageResponse(id);
     response.setExtractedData(extractedData);
