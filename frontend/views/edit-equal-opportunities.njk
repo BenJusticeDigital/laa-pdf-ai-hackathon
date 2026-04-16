@@ -1,0 +1,83 @@
+{% from "govuk/components/select/macro.njk"         import govukSelect %}
+{% from "govuk/components/checkboxes/macro.njk"     import govukCheckboxes %}
+{% from "govuk/components/button/macro.njk"         import govukButton %}
+{% from "govuk/components/error-summary/macro.njk"  import govukErrorSummary %}
+
+{% extends "layout.njk" %}
+
+{% block pageTitle %}
+  {% if errorList | length %}Error: {% endif %}Change equal opportunities information — LAA CW1 Form Submission
+{% endblock %}
+
+{% block content %}
+
+  <a href="/review/{{ data.id }}?mock=true" class="govuk-back-link">Back to check your answers</a>
+
+  {% if errorList | length %}
+    {{ govukErrorSummary({
+      titleText: "Some information could not be extracted",
+      descriptionText: "The following fields need to be completed.",
+      errorList: errorList
+    }) }}
+  {% endif %}
+
+  <h1 class="govuk-heading-l">Change equal opportunities information</h1>
+
+  <form method="POST" action="/edit/{{ data.id }}/equal-opportunities" novalidate>
+
+    {{ govukSelect({
+      id: "ethnicity",
+      name: "ethnicity",
+      label: { text: "Ethnicity", classes: "govuk-label--m" },
+      errorMessage: { text: "Select an ethnicity — this could not be extracted" } if missing.ethnicity,
+      items: [
+        { value: "", text: "Select ethnicity" },
+        { value: "White British",                             text: "White British",                             selected: data.ethnicity === "White British" },
+        { value: "White Irish",                               text: "White Irish",                               selected: data.ethnicity === "White Irish" },
+        { value: "White Other",                               text: "White Other",                               selected: data.ethnicity === "White Other" },
+        { value: "Mixed - White and Black Caribbean",         text: "Mixed - White and Black Caribbean",         selected: data.ethnicity === "Mixed - White and Black Caribbean" },
+        { value: "Mixed - White and Black African",           text: "Mixed - White and Black African",           selected: data.ethnicity === "Mixed - White and Black African" },
+        { value: "Mixed - White and Asian",                   text: "Mixed - White and Asian",                   selected: data.ethnicity === "Mixed - White and Asian" },
+        { value: "Mixed Other",                               text: "Mixed Other",                               selected: data.ethnicity === "Mixed Other" },
+        { value: "Asian or Asian British - Indian",           text: "Asian or Asian British - Indian",           selected: data.ethnicity === "Asian or Asian British - Indian" },
+        { value: "Asian or Asian British - Pakistani",        text: "Asian or Asian British - Pakistani",        selected: data.ethnicity === "Asian or Asian British - Pakistani" },
+        { value: "Asian or Asian British - Bangladeshi",      text: "Asian or Asian British - Bangladeshi",      selected: data.ethnicity === "Asian or Asian British - Bangladeshi" },
+        { value: "Asian or Asian British - Other",            text: "Asian or Asian British - Other",            selected: data.ethnicity === "Asian or Asian British - Other" },
+        { value: "Black or Black British - Caribbean",        text: "Black or Black British - Caribbean",        selected: data.ethnicity === "Black or Black British - Caribbean" },
+        { value: "Black or Black British - African",          text: "Black or Black British - African",          selected: data.ethnicity === "Black or Black British - African" },
+        { value: "Black or Black British - Other",            text: "Black or Black British - Other",            selected: data.ethnicity === "Black or Black British - Other" },
+        { value: "Chinese",                                   text: "Chinese",                                   selected: data.ethnicity === "Chinese" },
+        { value: "Any other ethnic group",                    text: "Any other ethnic group",                    selected: data.ethnicity === "Any other ethnic group" },
+        { value: "Prefer not to say",                         text: "Prefer not to say",                         selected: data.ethnicity === "Prefer not to say" }
+      ]
+    }) }}
+
+    {{ govukCheckboxes({
+      name: "disability",
+      fieldset: {
+        legend: { text: "Disability", classes: "govuk-fieldset__legend--m" }
+      },
+      hint: { text: "Select all that apply." },
+      items: [
+        { value: "disability_mental_health",        text: "Mental health condition",   checked: data.disability_mental_health },
+        { value: "disability_blind",                text: "Blind",                     checked: data.disability_blind },
+        { value: "disability_learning",             text: "Learning disability",       checked: data.disability_learning },
+        { value: "disability_long_standing_illness",text: "Long-standing illness",     checked: data.disability_long_standing_illness },
+        { value: "disability_mobility",             text: "Mobility impairment",       checked: data.disability_mobility },
+        { value: "disability_deaf",                 text: "Deaf",                      checked: data.disability_deaf },
+        { value: "disability_hearing_impaired",     text: "Hearing impaired",          checked: data.disability_hearing_impaired },
+        { value: "disability_visually_impaired",    text: "Visually impaired",         checked: data.disability_visually_impaired },
+        { value: "disability_other",                text: "Other",                     checked: data.disability_other },
+        { value: "disability_unknown",              text: "Unknown",                   checked: data.disability_unknown },
+        {
+          divider: "or"
+        },
+        { value: "disability_not_considered",       text: "Not considered",            checked: data.disability_not_considered },
+        { value: "disability_prefer_not_say",       text: "Prefer not to say",         checked: data.disability_prefer_not_say }
+      ]
+    }) }}
+
+    {{ govukButton({ text: "Save changes" }) }}
+  </form>
+
+{% endblock %}

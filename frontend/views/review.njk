@@ -1,0 +1,149 @@
+{% from "govuk/components/summary-list/macro.njk"       import govukSummaryList %}
+{% from "govuk/components/button/macro.njk"             import govukButton %}
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
+{% from "govuk/components/error-summary/macro.njk"      import govukErrorSummary %}
+
+{% extends "layout.njk" %}
+
+{% block pageTitle %}
+  {% if missingFields | length %}Error: {% endif %}Check your answers — LAA CW1 Form Submission
+{% endblock %}
+
+{% block content %}
+
+  {% if mockMode %}
+    {{ govukNotificationBanner({
+      text: "Mock mode — this data was generated from a simulated OCR response, not a real backend."
+    }) }}
+  {% endif %}
+
+  {% if missingFields | length %}
+    {{ govukErrorSummary({
+      titleText: "Some information could not be extracted",
+      descriptionText: "The OCR could not read the following fields. Please provide the missing information.",
+      errorList: missingFields
+    }) }}
+  {% endif %}
+
+  <h1 class="govuk-heading-l">Check your answers</h1>
+  <p class="govuk-body">Review the information extracted from the form. Correct anything that looks wrong before confirming.</p>
+
+  {# Helper to style a value — show red error text when missing #}
+  {% macro valueOrMissing(val, fallback) %}
+    {% if val %}
+      {{ val }}
+    {% else %}
+      <span class="govuk-error-message govuk-!-margin-bottom-0">
+        <span class="govuk-visually-hidden">Error:</span> {{ fallback }}
+      </span>
+    {% endif %}
+  {% endmacro %}
+
+  <h2 class="govuk-heading-m">Application</h2>
+  {{ govukSummaryList({
+    rows: [
+      {
+        key:   { text: "Application reference" },
+        value: { text: data.application_reference },
+        actions: { items: [{ href: "/edit/" + data.id + "/application", text: "Change", visuallyHiddenText: "application reference" }] }
+      },
+      {
+        key:   { text: "Exceptional case funding" },
+        value: { text: "Yes" if data.is_exceptional_case_funding else "No" },
+        actions: { items: [{ href: "/edit/" + data.id + "/application", text: "Change", visuallyHiddenText: "exceptional case funding" }] }
+      }
+    ]
+  }) }}
+
+  <h2 class="govuk-heading-m">Client details</h2>
+  {{ govukSummaryList({
+    rows: [
+      {
+        key:   { text: "Title" },
+        value: { html: valueOrMissing(data.title, "Not extracted — enter a title") },
+        actions: { items: [{ href: "/edit/" + data.id + "/client-details", text: "Change", visuallyHiddenText: "title" }] }
+      },
+      {
+        key:   { text: "First name" },
+        value: { html: valueOrMissing(data.first_name, "Not extracted — enter first name") },
+        actions: { items: [{ href: "/edit/" + data.id + "/client-details", text: "Change", visuallyHiddenText: "first name" }] }
+      },
+      {
+        key:   { text: "Surname" },
+        value: { html: valueOrMissing(data.surname, "Not extracted — enter surname") },
+        actions: { items: [{ href: "/edit/" + data.id + "/client-details", text: "Change", visuallyHiddenText: "surname" }] }
+      },
+      {
+        key:   { text: "Surname at birth" },
+        value: { text: data.surname_at_birth or "Not provided" },
+        actions: { items: [{ href: "/edit/" + data.id + "/client-details", text: "Change", visuallyHiddenText: "surname at birth" }] }
+      },
+      {
+        key:   { text: "Date of birth" },
+        value: { html: valueOrMissing(data.date_of_birth, "Not extracted — enter date of birth") },
+        actions: { items: [{ href: "/edit/" + data.id + "/client-details", text: "Change", visuallyHiddenText: "date of birth" }] }
+      },
+      {
+        key:   { text: "National Insurance number" },
+        value: { html: valueOrMissing(data.national_insurance_number, "Not extracted — enter National Insurance number") },
+        actions: { items: [{ href: "/edit/" + data.id + "/client-details", text: "Change", visuallyHiddenText: "National Insurance number" }] }
+      },
+      {
+        key:   { text: "Sex" },
+        value: { html: valueOrMissing(data.sex, "Not extracted — select sex") },
+        actions: { items: [{ href: "/edit/" + data.id + "/client-details", text: "Change", visuallyHiddenText: "sex" }] }
+      },
+      {
+        key:   { text: "Marital status" },
+        value: { html: valueOrMissing(data.marital_status, "Not extracted — select marital status") },
+        actions: { items: [{ href: "/edit/" + data.id + "/client-details", text: "Change", visuallyHiddenText: "marital status" }] }
+      },
+      {
+        key:   { text: "Place of birth (town)" },
+        value: { html: valueOrMissing(data.place_of_birth_town, "Not extracted — enter place of birth") },
+        actions: { items: [{ href: "/edit/" + data.id + "/client-details", text: "Change", visuallyHiddenText: "place of birth" }] }
+      },
+      {
+        key:   { text: "Occupation" },
+        value: { html: valueOrMissing(data.job, "Not extracted — enter occupation") },
+        actions: { items: [{ href: "/edit/" + data.id + "/client-details", text: "Change", visuallyHiddenText: "occupation" }] }
+      },
+      {
+        key:   { text: "Current address" },
+        value: { html: valueOrMissing(data.current_address, "Not extracted — enter current address") },
+        actions: { items: [{ href: "/edit/" + data.id + "/client-details", text: "Change", visuallyHiddenText: "current address" }] }
+      },
+      {
+        key:   { text: "Postcode" },
+        value: { html: valueOrMissing(data.postcode, "Not extracted — enter postcode") },
+        actions: { items: [{ href: "/edit/" + data.id + "/client-details", text: "Change", visuallyHiddenText: "postcode" }] }
+      }
+    ]
+  }) }}
+
+  <h2 class="govuk-heading-m">Equal opportunities monitoring</h2>
+  {{ govukSummaryList({
+    rows: [
+      {
+        key:   { text: "Ethnicity" },
+        value: { html: valueOrMissing(data.ethnicity, "Not extracted — select ethnicity") },
+        actions: { items: [{ href: "/edit/" + data.id + "/equal-opportunities", text: "Change", visuallyHiddenText: "ethnicity" }] }
+      },
+      {
+        key:   { text: "Disability information" },
+        value: { text: "Prefer not to say" if data.disability_prefer_not_say else "Not extracted" },
+        actions: { items: [{ href: "/edit/" + data.id + "/equal-opportunities", text: "Change", visuallyHiddenText: "disability information" }] }
+      }
+    ]
+  }) }}
+
+  <form method="POST" action="/confirm">
+    <input type="hidden" name="id" value="{{ data.id }}">
+    {{ govukButton({ text: "Confirm and submit" }) }}
+  </form>
+
+  <p class="govuk-body">
+    <a href="/" class="govuk-link">Cancel and start again</a>
+  </p>
+
+{% endblock %}
