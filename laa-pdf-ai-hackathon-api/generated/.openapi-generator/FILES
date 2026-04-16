@@ -1,4 +1,3 @@
-.openapi-generator-ignore
 README.md
 pom.xml
 src/main/java/uk/gov/justice/laa/springboot/microservice/api/ApiUtil.java

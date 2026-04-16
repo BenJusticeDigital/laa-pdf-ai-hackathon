@@ -20,7 +20,7 @@ import jakarta.annotation.Generated;
  * Item
  */
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2026-04-16T11:49:56.064417+01:00[Europe/London]", comments = "Generator version: 7.18.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2026-04-16T12:42:48.538908+01:00[Europe/London]", comments = "Generator version: 7.18.0")
 public class Item implements Serializable {
 
   private static final long serialVersionUID = 1L;
