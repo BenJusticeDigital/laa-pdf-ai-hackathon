@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import uk.gov.justice.laa.springboot.microservice.PostgresIntegrationTestBase;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.laa.springboot.microservice.model.Cw1FormData;
 import uk.gov.justice.laa.springboot.microservice.model.ImageResponse;
@@ -26,14 +26,7 @@ import static org.mockito.Mockito.when;
  */
 @SpringBootTest
 @Transactional
-@TestPropertySource(properties = {
-    "spring.datasource.url=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1",
-    "spring.datasource.driver-class-name=org.h2.Driver",
-    "spring.datasource.username=sa",
-    "spring.datasource.password=",
-    "spring.flyway.enabled=true"
-})
-class ImageServiceIntegrationTest {
+class ImageServiceIntegrationTest extends PostgresIntegrationTestBase {
 
   @Autowired
   private ImageService imageService;

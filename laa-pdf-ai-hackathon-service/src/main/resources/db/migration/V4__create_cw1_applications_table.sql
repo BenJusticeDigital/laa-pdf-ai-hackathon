@@ -1,7 +1,7 @@
 -- CW1 Form: Legal Help, Help at Court and Family Help (Lower)
 CREATE TABLE CW1_APPLICATIONS
 (
-    id                              UUID            DEFAULT RANDOM_UUID(),
+    id                              UUID            DEFAULT gen_random_uuid(),
     application_reference           VARCHAR(50)     UNIQUE,
 
     -- Exceptional Case Funding
@@ -42,12 +42,25 @@ CREATE TABLE CW1_APPLICATIONS
 
     -- Audit fields
     created_at                      TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
-    updated_at                      TIMESTAMP       DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at                      TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY (id)
 );
 
--- Index for quick lookups
+-- Trigger to auto-update updated_at on row changes
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+    RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_cw1_applications_updated_at
+    BEFORE UPDATE ON CW1_APPLICATIONS
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Indexes for quick lookups
 CREATE INDEX idx_cw1_surname ON CW1_APPLICATIONS(surname);
 CREATE INDEX idx_cw1_dob ON CW1_APPLICATIONS(date_of_birth);
 CREATE INDEX idx_cw1_ni_number ON CW1_APPLICATIONS(national_insurance_number);

@@ -6,10 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import uk.gov.justice.laa.springboot.microservice.PostgresIntegrationTestBase;
 import uk.gov.justice.laa.springboot.microservice.model.Cw1FormData;
 import uk.gov.justice.laa.springboot.microservice.ocr.OcrProvider;
 import uk.gov.justice.laa.springboot.microservice.repository.OcrOutputRepository;
@@ -31,14 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestPropertySource(properties = {
-    "spring.datasource.url=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1",
-    "spring.datasource.driver-class-name=org.h2.Driver",
-    "spring.datasource.username=sa",
-    "spring.datasource.password=",
-    "spring.flyway.enabled=true"
-})
-class ImageControllerIntegrationTest {
+class ImageControllerIntegrationTest extends PostgresIntegrationTestBase {
 
   @Autowired
   private MockMvc mockMvc;
@@ -152,3 +145,4 @@ class ImageControllerIntegrationTest {
     assertThat(location).endsWith(id);
   }
 }
+
