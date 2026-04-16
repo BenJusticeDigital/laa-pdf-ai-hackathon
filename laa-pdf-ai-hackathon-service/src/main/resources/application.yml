@@ -44,6 +44,10 @@ management:
 gemini:
   api-key: ${GEMINI_API_KEY:} # set GEMINI_API_KEY environment variable
 
+notify:
+  api-key: ${NOTIFY_API_KEY:} # set NOTIFY_API_KEY environment variable
+  template-id: ${NOTIFY_TEMPLATE_ID:} # set NOTIFY_TEMPLATE_ID environment variable
+
 sentry:
   dsn: # configure dsn url here
   environment: # configure environment name here
