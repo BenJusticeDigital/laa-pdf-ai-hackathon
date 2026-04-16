@@ -10,6 +10,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 /**
  * Entity representing extracted OCR data from a submitted form.
@@ -31,6 +33,7 @@ public class OcrOutputEntity {
    * Raw JSON data extracted from the OCR provider.
    * Stored as a VARCHAR containing serialized JSON.
    */
+  @JdbcTypeCode(SqlTypes.JSON)
   private String data;
 
   /**
