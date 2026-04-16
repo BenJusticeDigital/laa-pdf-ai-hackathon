@@ -120,3 +120,7 @@ components:
           type: object
           description: Structured JSON data extracted from the image by the AI provider
           additionalProperties: true
+        confidence:
+          type: object
+          description: Per-field confidence scores (0.0–1.0) as reported by the AI provider
+          additionalProperties: true

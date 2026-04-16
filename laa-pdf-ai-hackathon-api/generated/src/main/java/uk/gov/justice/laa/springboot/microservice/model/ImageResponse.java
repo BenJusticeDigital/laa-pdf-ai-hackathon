@@ -23,7 +23,7 @@ import jakarta.annotation.Generated;
  * ImageResponse
  */
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2026-04-16T13:37:25.624190+01:00[Europe/London]", comments = "Generator version: 7.18.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2026-04-16T13:51:26.073635+01:00[Europe/London]", comments = "Generator version: 7.18.0")
 public class ImageResponse implements Serializable {
 
   private static final long serialVersionUID = 1L;
@@ -32,6 +32,9 @@ public class ImageResponse implements Serializable {
 
   @Valid
   private Map<String, Object> extractedData = new HashMap<>();
+
+  @Valid
+  private Map<String, Object> confidence = new HashMap<>();
 
   public ImageResponse() {
     super();
@@ -92,6 +95,34 @@ public class ImageResponse implements Serializable {
     this.extractedData = extractedData;
   }
 
+  public ImageResponse confidence(Map<String, Object> confidence) {
+    this.confidence = confidence;
+    return this;
+  }
+
+  public ImageResponse putConfidenceItem(String key, Object confidenceItem) {
+    if (this.confidence == null) {
+      this.confidence = new HashMap<>();
+    }
+    this.confidence.put(key, confidenceItem);
+    return this;
+  }
+
+  /**
+   * Per-field confidence scores (0.0–1.0) as reported by the AI provider
+   * @return confidence
+   */
+  
+  @Schema(name = "confidence", description = "Per-field confidence scores (0.0–1.0) as reported by the AI provider", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @JsonProperty("confidence")
+  public Map<String, Object> getConfidence() {
+    return confidence;
+  }
+
+  public void setConfidence(Map<String, Object> confidence) {
+    this.confidence = confidence;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -102,12 +133,13 @@ public class ImageResponse implements Serializable {
     }
     ImageResponse imageResponse = (ImageResponse) o;
     return Objects.equals(this.id, imageResponse.id) &&
-        Objects.equals(this.extractedData, imageResponse.extractedData);
+        Objects.equals(this.extractedData, imageResponse.extractedData) &&
+        Objects.equals(this.confidence, imageResponse.confidence);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, extractedData);
+    return Objects.hash(id, extractedData, confidence);
   }
 
   @Override
@@ -116,6 +148,7 @@ public class ImageResponse implements Serializable {
     sb.append("class ImageResponse {\n");
     sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    extractedData: ").append(toIndentedString(extractedData)).append("\n");
+    sb.append("    confidence: ").append(toIndentedString(confidence)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -146,6 +179,7 @@ public class ImageResponse implements Serializable {
     protected Builder copyOf(ImageResponse value) { 
       this.instance.setId(value.id);
       this.instance.setExtractedData(value.extractedData);
+      this.instance.setConfidence(value.confidence);
       return this;
     }
 
@@ -156,6 +190,11 @@ public class ImageResponse implements Serializable {
     
     public ImageResponse.Builder extractedData(Map<String, Object> extractedData) {
       this.instance.extractedData(extractedData);
+      return this;
+    }
+    
+    public ImageResponse.Builder confidence(Map<String, Object> confidence) {
+      this.instance.confidence(confidence);
       return this;
     }
     

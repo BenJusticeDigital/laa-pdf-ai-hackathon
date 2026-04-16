@@ -11,14 +11,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
+import uk.gov.justice.laa.springboot.microservice.model.Cw1FormConfidence;
 import uk.gov.justice.laa.springboot.microservice.model.Cw1FormData;
 
 /**
  * OCR provider backed by Google Gemini 2.5 Flash.
  *
  * <p>Uses Gemini's native structured output (responseSchema) to constrain the
- * model's response to the CW1 form schema, returning a fully typed
- * {@link Cw1FormData} object.</p>
+ * model's response to the CW1 form schema. Returns both extracted field values
+ * and per-field confidence scores as an {@link OcrResult}.</p>
  *
  * <p>Requires the {@code GEMINI_API_KEY} environment variable to be set.</p>
  */
@@ -33,18 +34,21 @@ public class GeminiOcrProvider implements OcrProvider {
   private static final String PROMPT =
       "You are a form data extraction assistant. "
       + "The image shows a completed CW1 Legal Help paper form. "
-      + "Extract every visible field value from the form and populate the response schema. "
-      + "Use null for any field that is blank or cannot be read clearly. "
-      + "For boolean fields (checkboxes), use true if the box is ticked, false if unticked, "
+      + "Extract every visible field value from the form and populate extractedData. "
+      + "For boolean fields (checkboxes), use true if ticked, false if unticked, "
       + "null if not visible. "
-      + "Return dates in the format DD/MM/YYYY as a string.";
+      + "Return dates as strings in DD/MM/YYYY format. "
+      + "Use null for any field that is blank or cannot be read clearly. "
+      + "Also populate the confidence object with a score per field between 0.0 and 1.0, "
+      + "where 1.0 means you are certain of the value and 0.0 means you cannot read it. "
+      + "Base confidence on legibility, clarity, and certainty of the extracted value.";
 
   private final ObjectMapper objectMapper = new ObjectMapper();
   private final RestClient restClient;
   private final GeminiProperties geminiProperties;
 
   @Override
-  public Cw1FormData extractFormData(MultipartFile image) {
+  public OcrResult extractFormData(MultipartFile image) {
     log.info("Sending image to Gemini for structured CW1 extraction, filename={}, size={} bytes",
         image.getOriginalFilename(), image.getSize());
 
@@ -61,7 +65,7 @@ public class GeminiOcrProvider implements OcrProvider {
 
     log.debug("Raw Gemini response: {}", rawResponse);
 
-    return parseCw1FormData(rawResponse);
+    return parseOcrResult(rawResponse);
   }
 
   private String encodeImageToBase64(MultipartFile image) {
@@ -90,49 +94,92 @@ public class GeminiOcrProvider implements OcrProvider {
         ),
         "generationConfig", Map.of(
             "responseMimeType", "application/json",
-            "responseSchema", buildCw1ResponseSchema()
+            "responseSchema", buildResponseSchema()
         )
     );
   }
 
-  private Map<String, Object> buildCw1ResponseSchema() {
+  private Map<String, Object> buildResponseSchema() {
+    Map<String, Object> fieldSchema = buildCw1FieldSchema();
+    Map<String, Object> confidenceSchema = buildConfidenceFieldSchema();
     return Map.of(
         "type", "OBJECT",
-        "properties", Map.ofEntries(
-            Map.entry("applicationReference", Map.of("type", "STRING")),
-            Map.entry("isExceptionalCaseFunding", Map.of("type", "BOOLEAN")),
-            Map.entry("ethnicity", Map.of("type", "STRING")),
-            Map.entry("disabilityNotConsidered", Map.of("type", "BOOLEAN")),
-            Map.entry("disabilityMentalHealth", Map.of("type", "BOOLEAN")),
-            Map.entry("disabilityBlind", Map.of("type", "BOOLEAN")),
-            Map.entry("disabilityLearning", Map.of("type", "BOOLEAN")),
-            Map.entry("disabilityLongStandingIllness", Map.of("type", "BOOLEAN")),
-            Map.entry("disabilityMobility", Map.of("type", "BOOLEAN")),
-            Map.entry("disabilityOther", Map.of("type", "BOOLEAN")),
-            Map.entry("disabilityDeaf", Map.of("type", "BOOLEAN")),
-            Map.entry("disabilityUnknown", Map.of("type", "BOOLEAN")),
-            Map.entry("disabilityHearingImpaired", Map.of("type", "BOOLEAN")),
-            Map.entry("disabilityPreferNotSay", Map.of("type", "BOOLEAN")),
-            Map.entry("disabilityVisuallyImpaired", Map.of("type", "BOOLEAN")),
-            Map.entry("title", Map.of("type", "STRING")),
-            Map.entry("initials", Map.of("type", "STRING")),
-            Map.entry("surname", Map.of("type", "STRING")),
-            Map.entry("firstName", Map.of("type", "STRING")),
-            Map.entry("surnameAtBirth", Map.of("type", "STRING")),
-            Map.entry("dateOfBirth", Map.of("type", "STRING")),
-            Map.entry("nationalInsuranceNumber", Map.of("type", "STRING")),
-            Map.entry("sex", Map.of("type", "STRING")),
-            Map.entry("maritalStatus", Map.of("type", "STRING")),
-            Map.entry("placeOfBirthTown", Map.of("type", "STRING")),
-            Map.entry("job", Map.of("type", "STRING")),
-            Map.entry("currentAddress", Map.of("type", "STRING")),
-            Map.entry("currentAddressLine2", Map.of("type", "STRING")),
-            Map.entry("postcode", Map.of("type", "STRING"))
+        "properties", Map.of(
+            "extractedData", Map.of("type", "OBJECT", "properties", fieldSchema),
+            "confidence", Map.of("type", "OBJECT", "properties", confidenceSchema)
         )
     );
   }
 
-  private Cw1FormData parseCw1FormData(String rawResponse) {
+  private Map<String, Object> buildCw1FieldSchema() {
+    return Map.ofEntries(
+        Map.entry("applicationReference", Map.of("type", "STRING")),
+        Map.entry("isExceptionalCaseFunding", Map.of("type", "BOOLEAN")),
+        Map.entry("ethnicity", Map.of("type", "STRING")),
+        Map.entry("disabilityNotConsidered", Map.of("type", "BOOLEAN")),
+        Map.entry("disabilityMentalHealth", Map.of("type", "BOOLEAN")),
+        Map.entry("disabilityBlind", Map.of("type", "BOOLEAN")),
+        Map.entry("disabilityLearning", Map.of("type", "BOOLEAN")),
+        Map.entry("disabilityLongStandingIllness", Map.of("type", "BOOLEAN")),
+        Map.entry("disabilityMobility", Map.of("type", "BOOLEAN")),
+        Map.entry("disabilityOther", Map.of("type", "BOOLEAN")),
+        Map.entry("disabilityDeaf", Map.of("type", "BOOLEAN")),
+        Map.entry("disabilityUnknown", Map.of("type", "BOOLEAN")),
+        Map.entry("disabilityHearingImpaired", Map.of("type", "BOOLEAN")),
+        Map.entry("disabilityPreferNotSay", Map.of("type", "BOOLEAN")),
+        Map.entry("disabilityVisuallyImpaired", Map.of("type", "BOOLEAN")),
+        Map.entry("title", Map.of("type", "STRING")),
+        Map.entry("initials", Map.of("type", "STRING")),
+        Map.entry("surname", Map.of("type", "STRING")),
+        Map.entry("firstName", Map.of("type", "STRING")),
+        Map.entry("surnameAtBirth", Map.of("type", "STRING")),
+        Map.entry("dateOfBirth", Map.of("type", "STRING")),
+        Map.entry("nationalInsuranceNumber", Map.of("type", "STRING")),
+        Map.entry("sex", Map.of("type", "STRING")),
+        Map.entry("maritalStatus", Map.of("type", "STRING")),
+        Map.entry("placeOfBirthTown", Map.of("type", "STRING")),
+        Map.entry("job", Map.of("type", "STRING")),
+        Map.entry("currentAddress", Map.of("type", "STRING")),
+        Map.entry("currentAddressLine2", Map.of("type", "STRING")),
+        Map.entry("postcode", Map.of("type", "STRING"))
+    );
+  }
+
+  private Map<String, Object> buildConfidenceFieldSchema() {
+    return Map.ofEntries(
+        Map.entry("applicationReference", Map.of("type", "NUMBER")),
+        Map.entry("isExceptionalCaseFunding", Map.of("type", "NUMBER")),
+        Map.entry("ethnicity", Map.of("type", "NUMBER")),
+        Map.entry("disabilityNotConsidered", Map.of("type", "NUMBER")),
+        Map.entry("disabilityMentalHealth", Map.of("type", "NUMBER")),
+        Map.entry("disabilityBlind", Map.of("type", "NUMBER")),
+        Map.entry("disabilityLearning", Map.of("type", "NUMBER")),
+        Map.entry("disabilityLongStandingIllness", Map.of("type", "NUMBER")),
+        Map.entry("disabilityMobility", Map.of("type", "NUMBER")),
+        Map.entry("disabilityOther", Map.of("type", "NUMBER")),
+        Map.entry("disabilityDeaf", Map.of("type", "NUMBER")),
+        Map.entry("disabilityUnknown", Map.of("type", "NUMBER")),
+        Map.entry("disabilityHearingImpaired", Map.of("type", "NUMBER")),
+        Map.entry("disabilityPreferNotSay", Map.of("type", "NUMBER")),
+        Map.entry("disabilityVisuallyImpaired", Map.of("type", "NUMBER")),
+        Map.entry("title", Map.of("type", "NUMBER")),
+        Map.entry("initials", Map.of("type", "NUMBER")),
+        Map.entry("surname", Map.of("type", "NUMBER")),
+        Map.entry("firstName", Map.of("type", "NUMBER")),
+        Map.entry("surnameAtBirth", Map.of("type", "NUMBER")),
+        Map.entry("dateOfBirth", Map.of("type", "NUMBER")),
+        Map.entry("nationalInsuranceNumber", Map.of("type", "NUMBER")),
+        Map.entry("sex", Map.of("type", "NUMBER")),
+        Map.entry("maritalStatus", Map.of("type", "NUMBER")),
+        Map.entry("placeOfBirthTown", Map.of("type", "NUMBER")),
+        Map.entry("job", Map.of("type", "NUMBER")),
+        Map.entry("currentAddress", Map.of("type", "NUMBER")),
+        Map.entry("currentAddressLine2", Map.of("type", "NUMBER")),
+        Map.entry("postcode", Map.of("type", "NUMBER"))
+    );
+  }
+
+  private OcrResult parseOcrResult(String rawResponse) {
     try {
       JsonNode root = objectMapper.readTree(rawResponse);
       String json = root
@@ -142,12 +189,18 @@ public class GeminiOcrProvider implements OcrProvider {
           .path("text")
           .asText();
 
-      log.info("Gemini structured response received, deserialising into Cw1FormData");
+      log.info("Gemini structured response received, deserialising into OcrResult");
 
-      return objectMapper.readValue(json, Cw1FormData.class);
+      JsonNode resultNode = objectMapper.readTree(json);
+      Cw1FormData extractedData = objectMapper.treeToValue(
+          resultNode.path("extractedData"), Cw1FormData.class);
+      Cw1FormConfidence confidence = objectMapper.treeToValue(
+          resultNode.path("confidence"), Cw1FormConfidence.class);
+
+      return new OcrResult(extractedData, confidence);
     } catch (Exception ex) {
-      log.error("Failed to deserialise Gemini response into Cw1FormData", ex);
-      return new Cw1FormData();
+      log.error("Failed to deserialise Gemini response into OcrResult", ex);
+      return new OcrResult(new Cw1FormData(), new Cw1FormConfidence());
     }
   }
 }

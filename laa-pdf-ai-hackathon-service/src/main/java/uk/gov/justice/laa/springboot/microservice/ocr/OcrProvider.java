@@ -1,7 +1,6 @@
 package uk.gov.justice.laa.springboot.microservice.ocr;
 
 import org.springframework.web.multipart.MultipartFile;
-import uk.gov.justice.laa.springboot.microservice.model.Cw1FormData;
 
 /**
  * Abstraction over an OCR / document AI provider.
@@ -12,10 +11,10 @@ import uk.gov.justice.laa.springboot.microservice.model.Cw1FormData;
 public interface OcrProvider {
 
   /**
-   * Extracts structured CW1 form data from an image.
+   * Extracts structured CW1 form data from an image, along with per-field confidence scores.
    *
    * @param image the uploaded image file
-   * @return a {@link Cw1FormData} populated with values extracted from the image
+   * @return an {@link OcrResult} containing extracted data and confidence scores
    */
-  Cw1FormData extractFormData(MultipartFile image);
+  OcrResult extractFormData(MultipartFile image);
 }
