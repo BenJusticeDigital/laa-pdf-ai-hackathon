@@ -19,8 +19,8 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'laa-spring-boot-microservice-template'
+rootProject.name = 'laa-pdf-ai-hackathon'
 
-include 'spring-boot-microservice-api'
-include 'spring-boot-microservice-service'
+include 'laa-pdf-ai-hackathon-api'
+include 'laa-pdf-ai-hackathon-service'
 
