@@ -45,6 +45,8 @@ paths:
           description: 'Unauthorized'
         '403':
           description: 'Forbidden'
+        '422':
+          description: 'Unprocessable content — not a valid CW1 form'
         '500':
           description: 'Internal server error'
 
@@ -119,4 +121,8 @@ components:
         extractedData:
           type: object
           description: Structured JSON data extracted from the image by the AI provider
+          additionalProperties: true
+        confidence:
+          type: object
+          description: Per-field confidence scores (0.0–1.0) as reported by the AI provider
           additionalProperties: true

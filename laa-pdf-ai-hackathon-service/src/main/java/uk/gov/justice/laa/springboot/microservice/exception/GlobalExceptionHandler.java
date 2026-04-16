@@ -1,6 +1,7 @@
 package uk.gov.justice.laa.springboot.microservice.exception;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 
 import java.net.URI;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,22 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   private static final URI DEFAULT_PROBLEM_TYPE = URI.create("about:blank");
 
+
+  /**
+   * Handles requests where the uploaded image is not a valid CW1 form.
+   *
+   * @param exception the exception
+   * @param request the web request
+   * @return 422 Unprocessable Entity with problem detail
+   */
+  @ExceptionHandler(InvalidFormException.class)
+  public ResponseEntity<Object> handleInvalidForm(
+      InvalidFormException exception, WebRequest request) {
+    ProblemDetail problemDetail =
+        buildProblemDetail(UNPROCESSABLE_ENTITY, exception.getMessage(), request);
+    return handleExceptionInternal(
+        exception, problemDetail, new HttpHeaders(), UNPROCESSABLE_ENTITY, request);
+  }
 
   @Override
   protected ResponseEntity<Object> handleHttpMessageNotReadable(
