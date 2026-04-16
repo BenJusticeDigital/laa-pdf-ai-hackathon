@@ -1,6 +1,7 @@
 'use strict';
 
 const express = require('express');
+const crypto = require('crypto');
 const fileUpload = require('express-fileupload');
 const axios = require('axios');
 const FormData = require('form-data');
@@ -19,6 +20,9 @@ if (USE_MOCK) {
 // Short-lived in-memory store for extracted CW1 data (keyed by submission ID).
 // Sufficient for a PoC demo session.
 const reviewStore = new Map();
+
+// Temporary store for uploaded files awaiting backend processing.
+const pendingUploads = new Map();
 
 router.use(fileUpload());
 
@@ -63,21 +67,49 @@ router.post('/', async (req, res) => {
     reviewStore.set(mockData.id, mockData);
     return res.render('processing.njk', {
       redirectUrl: `/review/${mockData.id}`,
+      processUrl: null,
       mockMode: true,
     });
   }
 
+  // Real mode — store the file temporarily, show spinner immediately,
+  // and let the client trigger the backend call via AJAX.
+  const pendingId = crypto.randomUUID();
+  pendingUploads.set(pendingId, {
+    fileData: imageFile.data,
+    fileName: imageFile.name,
+    mimeType: imageFile.mimetype,
+    email: email.trim(),
+  });
+
+  return res.render('processing.njk', {
+    redirectUrl: null,
+    processUrl: `/api/process/${pendingId}`,
+    mockMode: false,
+  });
+});
+
+// POST /api/process/:id — called from the processing page via AJAX to trigger
+// the actual backend OCR extraction while the spinner is displayed.
+router.post('/api/process/:id', async (req, res) => {
+  const pending = pendingUploads.get(req.params.id);
+  if (!pending) {
+    return res.status(404).json({ error: 'Upload not found or already processed' });
+  }
+
   try {
     const form = new FormData();
-    form.append('image', imageFile.data, {
-      filename: imageFile.name,
-      contentType: imageFile.mimetype,
+    form.append('image', pending.fileData, {
+      filename: pending.fileName,
+      contentType: pending.mimeType,
     });
-    form.append('email', email.trim());
+    form.append('email', pending.email);
 
     const response = await axios.post(`${BACKEND_URL}/api/v1/image`, form, {
       headers: form.getHeaders(),
     });
+
+    pendingUploads.delete(req.params.id);
 
     const id = String(response.data.id);
     const extractedData = response.data.extractedData;
@@ -85,35 +117,28 @@ router.post('/', async (req, res) => {
     if (extractedData && Object.keys(extractedData).length > 0) {
       const data = mapExtractedData(extractedData);
       data.id = id;
-      data._submitterEmail = email.trim();
+      data.application_reference = id;
+      data._submitterEmail = pending.email;
       data._mockMode = false;
       reviewStore.set(id, data);
-
-      return res.render('processing.njk', {
-        redirectUrl: `/review/${id}`,
-        mockMode: false,
-      });
+      return res.json({ redirectUrl: `/review/${id}` });
     }
 
-    // No extracted data — fall back to simple success page
-    return res.redirect(`/success?id=${id}`);
+    return res.json({ redirectUrl: `/success?id=${id}` });
   } catch (err) {
+    pendingUploads.delete(req.params.id);
     const status = err.response ? err.response.status : null;
     const message =
       status === 400
         ? 'The selected file could not be processed. Check the file and try again.'
         : 'There was a problem uploading your image. Try again later.';
-
-    return res.render('upload.njk', {
-      errors: [{ field: null, text: message }],
-      values: { email },
-      mockMode: USE_MOCK,
-    });
+    return res.status(500).json({ error: message });
   }
 });
 
 // Fields that the OCR is expected to extract — used to detect gaps.
 const TRACKED_FIELDS = [
+  { key: 'application_reference',    label: 'Application reference',    section: 'application' },
   { key: 'title',                    label: 'Title',                    section: 'client-details' },
   { key: 'first_name',               label: 'First name',              section: 'client-details' },
   { key: 'surname',                  label: 'Surname',                 section: 'client-details' },
@@ -258,6 +283,8 @@ router.post('/confirm', async (req, res) => {
 
   const data = reviewStore.get(id);
   const email = data?._submitterEmail;
+
+  console.log(`📋 Confirm submission id=${id}, data=${data ? 'found' : 'NOT FOUND'}, email=${email || 'none'}`);
 
   if (email && data) {
     const clientName = [data.title, data.first_name, data.surname].filter(Boolean).join(' ') || 'Unknown';

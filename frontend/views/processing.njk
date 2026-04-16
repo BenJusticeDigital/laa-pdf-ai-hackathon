@@ -94,17 +94,92 @@
       var bar = document.getElementById('progress-bar');
       var text = document.getElementById('progress-text');
       var statusEl = document.getElementById('status-message');
-      var duration = 10000;
-      var start = Date.now();
       var msgIndex = 0;
+      var processUrl = {{ ("'" + processUrl + "'") | safe if processUrl else "null" }};
+      var fixedRedirectUrl = {{ ("'" + redirectUrl + "'") | safe if redirectUrl else "null" }};
+      var backendDone = false;
+      var backendRedirectUrl = null;
+      var backendError = null;
+      var minDisplayTime = 3000;
+      var start = Date.now();
+
+      // If we have a processUrl, call the backend via AJAX while the animation plays.
+      if (processUrl) {
+        fetch(processUrl, { method: 'POST' })
+          .then(function (resp) { return resp.json(); })
+          .then(function (data) {
+            if (data.error) {
+              backendError = data.error;
+            } else {
+              backendRedirectUrl = data.redirectUrl;
+            }
+            backendDone = true;
+          })
+          .catch(function () {
+            backendError = 'There was a problem processing your image. Try again later.';
+            backendDone = true;
+          });
+      } else {
+        // Mock mode — simulate a fixed 10s wait then redirect
+        backendDone = false;
+      }
 
       function update() {
         var elapsed = Date.now() - start;
-        var pct = Math.min((elapsed / duration) * 100, 100);
+
+        // In mock mode (no processUrl), use a fixed 10s duration
+        if (!processUrl) {
+          var duration = 5000;
+          var pct = Math.min((elapsed / duration) * 100, 100);
+          bar.style.width = pct + '%';
+          text.textContent = Math.round(pct) + '% complete';
+
+          var newIndex = Math.min(Math.floor((elapsed / duration) * messages.length), messages.length - 1);
+          if (newIndex !== msgIndex) {
+            msgIndex = newIndex;
+            statusEl.style.opacity = '0';
+            setTimeout(function () {
+              statusEl.textContent = messages[msgIndex];
+              statusEl.style.opacity = '1';
+            }, 200);
+          }
+
+          if (elapsed < duration) {
+            requestAnimationFrame(update);
+          } else {
+            text.textContent = '100% — redirecting…';
+            window.location.href = fixedRedirectUrl;
+          }
+          return;
+        }
+
+        // Real mode — animate progress while waiting for backend
+        if (backendError) {
+          bar.style.background = '#d4351c';
+          bar.style.width = '100%';
+          text.textContent = 'Error';
+          statusEl.textContent = backendError;
+          statusEl.style.fontStyle = 'normal';
+          statusEl.style.color = '#d4351c';
+          return;
+        }
+
+        if (backendDone && elapsed >= minDisplayTime) {
+          bar.style.width = '100%';
+          text.textContent = '100% — redirecting…';
+          statusEl.textContent = 'Extraction complete!';
+          window.location.href = backendRedirectUrl;
+          return;
+        }
+
+        // Gradually fill progress bar — cap at 90% until backend finishes
+        var maxPct = backendDone ? 100 : 90;
+        var pct = Math.min((elapsed / 30000) * 90, maxPct);
         bar.style.width = pct + '%';
         text.textContent = Math.round(pct) + '% complete';
 
-        var newIndex = Math.min(Math.floor((elapsed / duration) * messages.length), messages.length - 1);
+        // Cycle through messages based on elapsed time
+        var newIndex = Math.min(Math.floor(elapsed / 3000), messages.length - 1);
         if (newIndex !== msgIndex) {
           msgIndex = newIndex;
           statusEl.style.opacity = '0';
@@ -114,12 +189,7 @@
           }, 200);
         }
 
-        if (elapsed < duration) {
-          requestAnimationFrame(update);
-        } else {
-          text.textContent = '100% — redirecting…';
-          window.location.href = '{{ redirectUrl }}';
-        }
+        requestAnimationFrame(update);
       }
 
       statusEl.style.transition = 'opacity 0.2s';
