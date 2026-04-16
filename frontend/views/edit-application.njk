@@ -1,0 +1,50 @@
+{% from "govuk/components/input/macro.njk"          import govukInput %}
+{% from "govuk/components/radios/macro.njk"         import govukRadios %}
+{% from "govuk/components/button/macro.njk"         import govukButton %}
+{% from "govuk/components/error-summary/macro.njk"  import govukErrorSummary %}
+
+{% extends "layout.njk" %}
+
+{% block pageTitle %}
+  {% if errorList | length %}Error: {% endif %}Change application details — LAA CW1 Form Submission
+{% endblock %}
+
+{% block content %}
+
+  <a href="/review/{{ data.id }}?mock=true" class="govuk-back-link">Back to check your answers</a>
+
+  {% if errorList | length %}
+    {{ govukErrorSummary({
+      titleText: "Some information could not be extracted",
+      descriptionText: "The following fields need to be completed.",
+      errorList: errorList
+    }) }}
+  {% endif %}
+
+  <h1 class="govuk-heading-l">Change application details</h1>
+
+  <form method="POST" action="/edit/{{ data.id }}/application" novalidate>
+
+    {{ govukInput({
+      id: "application_reference",
+      name: "application_reference",
+      label: { text: "Application reference", classes: "govuk-label--m" },
+      errorMessage: { text: "Enter an application reference — this could not be extracted" } if missing.application_reference,
+      value: data.application_reference
+    }) }}
+
+    {{ govukRadios({
+      name: "is_exceptional_case_funding",
+      fieldset: {
+        legend: { text: "Exceptional case funding?", classes: "govuk-fieldset__legend--m" }
+      },
+      items: [
+        { value: "true",  text: "Yes", checked: data.is_exceptional_case_funding },
+        { value: "false", text: "No",  checked: not data.is_exceptional_case_funding }
+      ]
+    }) }}
+
+    {{ govukButton({ text: "Save changes" }) }}
+  </form>
+
+{% endblock %}
