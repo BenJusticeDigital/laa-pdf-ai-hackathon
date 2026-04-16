@@ -9,6 +9,20 @@ A Spring Boot REST API for submitting images for AI processing.
 - Java 21+
 - Gradle (wrapper included)
 - Docker (optional)
+- A [Google Gemini API key](https://aistudio.google.com/app/apikey) (free tier)
+
+---
+
+## Configuration
+
+The service requires a Gemini API key to extract data from images.  
+Get a free key at [Google AI Studio](https://aistudio.google.com/app/apikey) — no billing required for the free tier.
+
+Set it as an environment variable before running:
+
+```bash
+export GEMINI_API_KEY=your_key_here
+```
 
 ---
 
@@ -76,7 +90,14 @@ curl -X POST http://localhost:8081/api/v1/image \
 
 ```json
 {
-  "id": "a3f1c2d4-89ab-4def-b012-3456789abcde"
+  "id": "a3f1c2d4-89ab-4def-b012-3456789abcde",
+  "extractedData": {
+    "Client Name": "Jane Smith",
+    "Date of Birth": "01/06/1985",
+    "National Insurance Number": "AB123456C",
+    "Solicitor Firm": "Smith & Co Solicitors",
+    "Category of Law": "Family"
+  }
 }
 ```
 

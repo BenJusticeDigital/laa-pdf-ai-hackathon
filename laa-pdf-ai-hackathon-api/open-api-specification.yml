@@ -222,3 +222,7 @@ components:
           type: string
           format: uuid
           description: The unique identifier of the created image submission
+        extractedData:
+          type: object
+          description: Structured JSON data extracted from the image by the AI provider
+          additionalProperties: true
