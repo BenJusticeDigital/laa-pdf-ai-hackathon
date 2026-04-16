@@ -18,6 +18,7 @@ import uk.gov.justice.laa.springboot.microservice.model.ImageResponse;
 import uk.gov.justice.laa.springboot.microservice.model.ImageSummary;
 import uk.gov.justice.laa.springboot.microservice.ocr.OcrProvider;
 import uk.gov.justice.laa.springboot.microservice.repository.OcrOutputRepository;
+import uk.gov.justice.laa.springboot.microservice.ocr.OcrResult;
 
 /**
  * Service for handling image submissions.
@@ -46,13 +47,16 @@ public class ImageService {
     log.info("Processing image submission [id={}] from [email={}], filename=[{}]",
         id, email, image.getOriginalFilename());
 
-    Cw1FormData formData = ocrProvider.extractFormData(image);
+    OcrResult ocrResult = ocrProvider.extractFormData(image);
+    Cw1FormData formData = ocrResult.getExtractedData();
 
     log.info("Extraction complete for submission [id={}], surname=[{}]",
         id, formData.getSurname());
 
     Map<String, Object> dataMap = objectMapper.convertValue(
         formData, new TypeReference<Map<String, Object>>() {});
+    Map<String, Object> confidenceMap = objectMapper.convertValue(
+        ocrResult.getConfidence(), new TypeReference<Map<String, Object>>() {});
 
     // Persist to H2
     try {
@@ -71,6 +75,7 @@ public class ImageService {
 
     ImageResponse response = new ImageResponse(id);
     response.setExtractedData(dataMap);
+    response.setConfidence(confidenceMap);
     return response;
   }
 

@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Optional;
 import jakarta.annotation.Generated;
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2026-04-16T13:55:28.790999+01:00[Europe/London]", comments = "Generator version: 7.18.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2026-04-16T14:22:28.390778+01:00[Europe/London]", comments = "Generator version: 7.18.0")
 @Validated
 @Tag(name = "image", description = "the image API")
 public interface ImageApi {
@@ -106,6 +106,7 @@ public interface ImageApi {
      *         or Bad request (status code 400)
      *         or Unauthorized (status code 401)
      *         or Forbidden (status code 403)
+     *         or Unprocessable content — not a valid CW1 form (status code 422)
      *         or Internal server error (status code 500)
      */
     @Operation(
@@ -119,6 +120,7 @@ public interface ImageApi {
             @ApiResponse(responseCode = "400", description = "Bad request"),
             @ApiResponse(responseCode = "401", description = "Unauthorized"),
             @ApiResponse(responseCode = "403", description = "Forbidden"),
+            @ApiResponse(responseCode = "422", description = "Unprocessable content — not a valid CW1 form"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
         }
     )
