@@ -1,6 +1,37 @@
 # laa-pdf-ai-hackathon
 
-A Spring Boot REST API for submitting images for AI processing.
+A tool for legal aid providers to digitise hand-filled CW1 forms (page 1 only) using AI-powered field extraction.
+
+## What this does
+
+Legal aid providers photograph a completed CW1 form (page 1). The tool extracts the handwritten field values using Google Gemini and presents them in a GOV.UK "check your answers" style review screen. The provider reviews and corrects any errors (sitting with the client), then confirms the data to produce a printable structured summary. Submission is simulated.
+
+### Flow
+
+1. Provider uploads a photo of the completed CW1 page 1
+2. Spring Boot backend receives the image and forwards it to Gemini with a structured prompt including the expected JSON schema
+3. Gemini returns extracted field values as JSON
+4. Frontend renders a GOV.UK "check your answers" style review screen
+5. Provider reviews and corrects any errors
+6. Confirmed data produces a printable structured summary
+
+### Fields extracted (CW1 page 1)
+
+- **Exceptional Case Funding** — yes/no flag
+- **Equal Opportunities**
+  - Ethnicity (single select from enumerated list)
+  - Disability (multi-select, or "not considered disabled" / "prefer not to say")
+- **Client details** — title, initials, surname, first name, surname at birth, date of birth, NI number, sex, marital status, place of birth, job, current address and postcode
+
+### Roadmap
+
+- **Phase 1 (MVP)** — Extract and display raw field values in the review UI; no confidence ratings
+- **Phase 2** — Add per-field confidence scores to the Gemini response schema; use these in the frontend to flag uncertain fields (amber highlight + "please verify" prompt on low-confidence fields)
+- **Phase 3 (stretch)** — Send a GOV.UK Notify email to the caseworker with a structured summary and CMS deep link, with an optional PDF attachment
+
+## Service flow
+
+![CW1 digital service end-to-end flow](docs/cw1_digital_service_flow_v2.svg)
 
 ---
 
@@ -15,7 +46,7 @@ A Spring Boot REST API for submitting images for AI processing.
 
 ## Configuration
 
-The service requires a Gemini API key to extract data from images.  
+The service requires a Gemini API key to extract data from images.
 Get a free key at [Google AI Studio](https://aistudio.google.com/app/apikey) — no billing required for the free tier.
 
 Set it as an environment variable before running:
@@ -68,7 +99,7 @@ curl http://localhost:8181/actuator/health
 
 ### `POST /api/v1/image`
 
-Accepts a `multipart/form-data` request containing an image file and submitter email address.  
+Accepts a `multipart/form-data` request containing an image file and submitter email address.
 Returns `201 Created` with the unique ID of the submission.
 
 #### Request fields
@@ -101,7 +132,7 @@ curl -X POST http://localhost:8081/api/v1/image \
 }
 ```
 
-HTTP status: `201 Created`  
+HTTP status: `201 Created`
 `Location` header: `/api/v1/image/a3f1c2d4-89ab-4def-b012-3456789abcde`
 
 ---
