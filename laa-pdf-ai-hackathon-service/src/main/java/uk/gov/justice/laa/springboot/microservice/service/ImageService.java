@@ -17,8 +17,8 @@ import uk.gov.justice.laa.springboot.microservice.model.Cw1FormData;
 import uk.gov.justice.laa.springboot.microservice.model.ImageResponse;
 import uk.gov.justice.laa.springboot.microservice.model.ImageSummary;
 import uk.gov.justice.laa.springboot.microservice.ocr.OcrProvider;
-import uk.gov.justice.laa.springboot.microservice.repository.OcrOutputRepository;
 import uk.gov.justice.laa.springboot.microservice.ocr.OcrResult;
+import uk.gov.justice.laa.springboot.microservice.repository.OcrOutputRepository;
 
 /**
  * Service for handling image submissions.
