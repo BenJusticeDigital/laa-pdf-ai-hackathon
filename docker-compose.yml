@@ -7,6 +7,9 @@ services:
       - "8081:8081"
       - "8181:8181"
       - "5005:5005"
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     environment:
       - SERVER_PORT=8081
       - SPRING_PROFILES_ACTIVE=local

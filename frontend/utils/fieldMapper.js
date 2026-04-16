@@ -40,15 +40,18 @@ const FIELD_MAP = {
  * Convert the backend's camelCase extractedData into the snake_case
  * flat object expected by the frontend templates.
  *
+ * Fields returned as null by the backend are preserved as null so the
+ * review page correctly flags them as missing / requiring user input.
+ * Fields absent from the response also default to null.
+ *
  * @param {object} extractedData - The extractedData map from the API response
  * @returns {object} Flat object with snake_case keys
  */
 function mapExtractedData(extractedData) {
   const result = {};
   for (const [camel, snake] of Object.entries(FIELD_MAP)) {
-    if (camel in extractedData) {
-      result[snake] = extractedData[camel];
-    }
+    const value = extractedData[camel];
+    result[snake] = (value !== undefined && value !== null && value !== '' && value !== 'null') ? value : null;
   }
   return result;
 }

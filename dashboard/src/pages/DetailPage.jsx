@@ -1,25 +1,50 @@
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { getFormById, updateFormStatus } from '../data/mockData';
+import { useParams, Link } from 'react-router-dom';
+import { getSubmission, mapResponseToForm } from '../api/apiService';
 import FormDetail from '../components/FormDetail';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function DetailPage() {
   const { id } = useParams();
-  const navigate = useNavigate();
-  const [form, setForm] = useState(() => getFormById(id));
+  const [form, setForm] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  if (!form) {
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        const response = await getSubmission(id);
+        if (cancelled) return;
+        const mapped = mapResponseToForm(response);
+        mapped.status = 'Pending Review';
+        setForm(mapped);
+      } catch (err) {
+        if (!cancelled) setError(err.message);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, [id]);
+
+  if (loading) {
     return (
       <div className="py-12 text-center">
-        <h2 className="text-lg font-semibold text-gray-900">Form not found</h2>
-        <Link to="/" className="mt-2 inline-block text-sm text-indigo-600 hover:underline">Back to dashboard</Link>
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent" />
+        <p className="mt-4 text-sm text-gray-500">Loading submission…</p>
       </div>
     );
   }
 
-  function handleAction(newStatus) {
-    const updated = updateFormStatus(id, newStatus);
-    setForm({ ...updated });
+  if (error || !form) {
+    return (
+      <div className="py-12 text-center">
+        <h2 className="text-lg font-semibold text-gray-900">Form not found</h2>
+        <p className="mt-1 text-sm text-red-600">{error}</p>
+        <Link to="/" className="mt-2 inline-block text-sm text-indigo-600 hover:underline">Back to dashboard</Link>
+      </div>
+    );
   }
 
   return (
@@ -35,44 +60,11 @@ export default function DetailPage() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{form.application_reference}</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{form.application_reference?.slice(0, 8)}…</h1>
           <p className="mt-1 text-sm text-gray-500">
             {form.first_name || '—'} {form.surname || '—'}
           </p>
         </div>
-
-        {/* Action buttons */}
-        {form.status === 'Pending Review' && (
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => handleAction('Approved')}
-              className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:outline-none"
-            >
-              ✓ Approve
-            </button>
-            <button
-              onClick={() => handleAction('Rejected')}
-              className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
-            >
-              ✗ Reject
-            </button>
-            <button
-              onClick={() => handleAction('Info Requested')}
-              className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
-            >
-              ⓘ Request Info
-            </button>
-          </div>
-        )}
-
-        {form.status !== 'Pending Review' && (
-          <button
-            onClick={() => handleAction('Pending Review')}
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
-          >
-            ↩ Reopen
-          </button>
-        )}
       </div>
 
       {/* Form detail card */}

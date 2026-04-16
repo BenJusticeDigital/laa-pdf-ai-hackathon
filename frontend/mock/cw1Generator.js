@@ -39,9 +39,11 @@ function generateMockCw1() {
   const surname   = pick(SURNAMES);
   const idx       = Math.floor(Math.random() * POSTCODES.length);
 
+  const id = crypto.randomUUID();
+
   const data = {
-    id:                        crypto.randomUUID(),
-    application_reference:     `LAA-${Date.now().toString(36).toUpperCase()}`,
+    id,
+    application_reference:     id,
 
     // Exceptional case funding
     is_exceptional_case_funding: Math.random() > 0.8,
