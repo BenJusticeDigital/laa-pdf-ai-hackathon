@@ -6,12 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import uk.gov.justice.laa.springboot.microservice.PostgresIntegrationTestBase;
 import uk.gov.justice.laa.springboot.microservice.model.Cw1FormData;
 import uk.gov.justice.laa.springboot.microservice.ocr.OcrProvider;
+import uk.gov.justice.laa.springboot.microservice.ocr.OcrResult;
 import uk.gov.justice.laa.springboot.microservice.repository.OcrOutputRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,14 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestPropertySource(properties = {
-    "spring.datasource.url=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1",
-    "spring.datasource.driver-class-name=org.h2.Driver",
-    "spring.datasource.username=sa",
-    "spring.datasource.password=",
-    "spring.flyway.enabled=true"
-})
-class ImageControllerIntegrationTest {
+class ImageControllerIntegrationTest extends PostgresIntegrationTestBase {
 
   @Autowired
   private MockMvc mockMvc;
@@ -54,7 +48,7 @@ class ImageControllerIntegrationTest {
     Cw1FormData formData = new Cw1FormData();
     formData.setSurname("Doe");
     formData.setFirstName("John");
-    when(ocrProvider.extractFormData(any())).thenReturn(formData);
+    when(ocrProvider.extractFormData(any())).thenReturn(new OcrResult(true, formData, null));
 
     MockMultipartFile pdf = new MockMultipartFile(
         "image", "cw1-form.pdf", "application/pdf", "dummy pdf content".getBytes()
@@ -75,7 +69,7 @@ class ImageControllerIntegrationTest {
     Cw1FormData formData = new Cw1FormData();
     formData.setSurname("Smith");
     formData.setNationalInsuranceNumber("AB123456C");
-    when(ocrProvider.extractFormData(any())).thenReturn(formData);
+    when(ocrProvider.extractFormData(any())).thenReturn(new OcrResult(true, formData, null));
 
     MockMultipartFile pdf = new MockMultipartFile(
         "image", "cw1-form.pdf", "application/pdf", "dummy pdf content".getBytes()
@@ -133,7 +127,7 @@ class ImageControllerIntegrationTest {
   void shouldIncludeLocationHeaderPointingToNewResource() throws Exception {
     Cw1FormData formData = new Cw1FormData();
     formData.setSurname("Jones");
-    when(ocrProvider.extractFormData(any())).thenReturn(formData);
+    when(ocrProvider.extractFormData(any())).thenReturn(new OcrResult(true, formData, null));
 
     MockMultipartFile pdf = new MockMultipartFile(
         "image", "cw1-form.pdf", "application/pdf", "dummy".getBytes()

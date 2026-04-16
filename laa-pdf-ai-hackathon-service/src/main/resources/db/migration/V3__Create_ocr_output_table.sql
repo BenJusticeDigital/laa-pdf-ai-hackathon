@@ -1,6 +1,6 @@
 CREATE TABLE ocr_output
 (
-    id   UUID         NOT NULL PRIMARY KEY,
-    data VARCHAR       NOT NULL
+    id   UUID  NOT NULL PRIMARY KEY,
+    data JSONB NOT NULL
 );
 

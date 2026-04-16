@@ -14,12 +14,12 @@ spring:
       max-file-size: 20MB
       max-request-size: 20MB
 
-  # example database
+  # database
   datasource:
-    url: jdbc:h2:mem:itemsDb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: password
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/laa_pdf_ai}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
 
   #do not auto create db schema, use Flyway migrations
   jpa:

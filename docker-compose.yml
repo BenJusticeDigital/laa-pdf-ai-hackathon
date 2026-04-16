@@ -1,4 +1,18 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=laa_pdf_ai
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   app:
     build:
       context: .
@@ -13,12 +27,19 @@ services:
     environment:
       - SERVER_PORT=8081
       - SPRING_PROFILES_ACTIVE=local
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/laa_pdf_ai
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
       - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE=50MB
       - SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE=50MB
       - SERVER_TOMCAT_MAX_SWALLOW_SIZE=-1
       - SERVER_TOMCAT_MAX_HTTP_FORM_POST_SIZE=-1
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   frontend:
     build:
