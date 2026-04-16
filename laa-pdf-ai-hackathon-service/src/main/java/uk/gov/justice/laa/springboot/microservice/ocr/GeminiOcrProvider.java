@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
+import uk.gov.justice.laa.springboot.microservice.exception.InvalidFormException;
 import uk.gov.justice.laa.springboot.microservice.model.Cw1FormConfidence;
 import uk.gov.justice.laa.springboot.microservice.model.Cw1FormData;
 
@@ -33,8 +34,10 @@ public class GeminiOcrProvider implements OcrProvider {
 
   private static final String PROMPT =
       "You are a form data extraction assistant. "
-      + "The image shows a completed CW1 Legal Help paper form. "
-      + "Extract every visible field value from the form and populate extractedData. "
+      + "First, check if the text 'CW1' is visible in the top-right corner of the document. "
+      + "Set isValidCw1Form to true only if you can see 'CW1' in the top-right corner. "
+      + "If it is not a CW1 form, set isValidCw1Form to false and leave all other fields null. "
+      + "If it is a valid CW1 form, extract every visible field value and populate extractedData. "
       + "For boolean fields (checkboxes), use true if ticked, false if unticked, "
       + "null if not visible. "
       + "Return dates as strings in DD/MM/YYYY format. "
@@ -105,6 +108,7 @@ public class GeminiOcrProvider implements OcrProvider {
     return Map.of(
         "type", "OBJECT",
         "properties", Map.of(
+            "isValidCw1Form", Map.of("type", "BOOLEAN"),
             "extractedData", Map.of("type", "OBJECT", "properties", fieldSchema),
             "confidence", Map.of("type", "OBJECT", "properties", confidenceSchema)
         )
@@ -192,15 +196,25 @@ public class GeminiOcrProvider implements OcrProvider {
       log.info("Gemini structured response received, deserialising into OcrResult");
 
       JsonNode resultNode = objectMapper.readTree(json);
+      boolean isValidCw1Form = resultNode.path("isValidCw1Form").asBoolean(false);
+
+      if (!isValidCw1Form) {
+        log.warn("Gemini determined the uploaded image is not a valid CW1 form");
+        throw new InvalidFormException(
+            "The uploaded image does not appear to be a CW1 Legal Help form.");
+      }
+
       Cw1FormData extractedData = objectMapper.treeToValue(
           resultNode.path("extractedData"), Cw1FormData.class);
       Cw1FormConfidence confidence = objectMapper.treeToValue(
           resultNode.path("confidence"), Cw1FormConfidence.class);
 
-      return new OcrResult(extractedData, confidence);
+      return new OcrResult(true, extractedData, confidence);
+    } catch (InvalidFormException ex) {
+      throw ex;
     } catch (Exception ex) {
       log.error("Failed to deserialise Gemini response into OcrResult", ex);
-      return new OcrResult(new Cw1FormData(), new Cw1FormConfidence());
+      return new OcrResult(true, new Cw1FormData(), new Cw1FormConfidence());
     }
   }
 }

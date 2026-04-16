@@ -45,6 +45,8 @@ paths:
           description: 'Unauthorized'
         '403':
           description: 'Forbidden'
+        '422':
+          description: 'Unprocessable content — not a valid CW1 form'
         '500':
           description: 'Internal server error'
 
