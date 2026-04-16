@@ -1,8 +1,16 @@
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
+
 {% extends "layout.njk" %}
 
 {% block pageTitle %}Image submitted — LAA CW1 Form Submission{% endblock %}
 
 {% block content %}
+
+  {% if mockMode %}
+    {{ govukNotificationBanner({
+      text: "Mock mode — this is a simulated response. No data was sent to the backend."
+    }) }}
+  {% endif %}
 
   <div class="govuk-panel govuk-panel--confirmation">
     <h1 class="govuk-panel__title">Image submitted</h1>
