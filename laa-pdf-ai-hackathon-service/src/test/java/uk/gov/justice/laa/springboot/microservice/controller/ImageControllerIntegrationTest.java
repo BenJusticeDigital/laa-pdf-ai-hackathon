@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import uk.gov.justice.laa.springboot.microservice.PostgresIntegrationTestBase;
 import uk.gov.justice.laa.springboot.microservice.model.Cw1FormData;
 import uk.gov.justice.laa.springboot.microservice.ocr.OcrProvider;
+import uk.gov.justice.laa.springboot.microservice.ocr.OcrResult;
 import uk.gov.justice.laa.springboot.microservice.repository.OcrOutputRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,7 +48,7 @@ class ImageControllerIntegrationTest extends PostgresIntegrationTestBase {
     Cw1FormData formData = new Cw1FormData();
     formData.setSurname("Doe");
     formData.setFirstName("John");
-    when(ocrProvider.extractFormData(any())).thenReturn(formData);
+    when(ocrProvider.extractFormData(any())).thenReturn(new OcrResult(true, formData, null));
 
     MockMultipartFile pdf = new MockMultipartFile(
         "image", "cw1-form.pdf", "application/pdf", "dummy pdf content".getBytes()
@@ -68,7 +69,7 @@ class ImageControllerIntegrationTest extends PostgresIntegrationTestBase {
     Cw1FormData formData = new Cw1FormData();
     formData.setSurname("Smith");
     formData.setNationalInsuranceNumber("AB123456C");
-    when(ocrProvider.extractFormData(any())).thenReturn(formData);
+    when(ocrProvider.extractFormData(any())).thenReturn(new OcrResult(true, formData, null));
 
     MockMultipartFile pdf = new MockMultipartFile(
         "image", "cw1-form.pdf", "application/pdf", "dummy pdf content".getBytes()
@@ -126,7 +127,7 @@ class ImageControllerIntegrationTest extends PostgresIntegrationTestBase {
   void shouldIncludeLocationHeaderPointingToNewResource() throws Exception {
     Cw1FormData formData = new Cw1FormData();
     formData.setSurname("Jones");
-    when(ocrProvider.extractFormData(any())).thenReturn(formData);
+    when(ocrProvider.extractFormData(any())).thenReturn(new OcrResult(true, formData, null));
 
     MockMultipartFile pdf = new MockMultipartFile(
         "image", "cw1-form.pdf", "application/pdf", "dummy".getBytes()
@@ -145,4 +146,3 @@ class ImageControllerIntegrationTest extends PostgresIntegrationTestBase {
     assertThat(location).endsWith(id);
   }
 }
-

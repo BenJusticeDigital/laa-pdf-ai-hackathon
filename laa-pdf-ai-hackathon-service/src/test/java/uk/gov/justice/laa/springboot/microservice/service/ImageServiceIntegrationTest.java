@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.laa.springboot.microservice.model.Cw1FormData;
 import uk.gov.justice.laa.springboot.microservice.model.ImageResponse;
 import uk.gov.justice.laa.springboot.microservice.ocr.OcrProvider;
+import uk.gov.justice.laa.springboot.microservice.ocr.OcrResult;
 import uk.gov.justice.laa.springboot.microservice.repository.OcrOutputRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,7 +45,7 @@ class ImageServiceIntegrationTest extends PostgresIntegrationTestBase {
     formData.setSurname("Doe");
     formData.setFirstName("John");
     formData.setNationalInsuranceNumber("AB123456C");
-    when(ocrProvider.extractFormData(any())).thenReturn(formData);
+    when(ocrProvider.extractFormData(any())).thenReturn(new OcrResult(true, formData, null));
 
     MockMultipartFile pdf = new MockMultipartFile(
         "file", "cw1-form.pdf", "application/pdf", "dummy pdf content".getBytes()
@@ -71,7 +72,7 @@ class ImageServiceIntegrationTest extends PostgresIntegrationTestBase {
     // Arrange
     Cw1FormData formData = new Cw1FormData();
     formData.setSurname("Smith");
-    when(ocrProvider.extractFormData(any())).thenReturn(formData);
+    when(ocrProvider.extractFormData(any())).thenReturn(new OcrResult(true, formData, null));
 
     MockMultipartFile pdf = new MockMultipartFile(
         "file", "cw1-form.pdf", "application/pdf", "dummy".getBytes()
