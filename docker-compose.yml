@@ -12,6 +12,10 @@ services:
       - SPRING_PROFILES_ACTIVE=local
       - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
       - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE=50MB
+      - SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE=50MB
+      - SERVER_TOMCAT_MAX_SWALLOW_SIZE=-1
+      - SERVER_TOMCAT_MAX_HTTP_FORM_POST_SIZE=-1
 
   frontend:
     build:

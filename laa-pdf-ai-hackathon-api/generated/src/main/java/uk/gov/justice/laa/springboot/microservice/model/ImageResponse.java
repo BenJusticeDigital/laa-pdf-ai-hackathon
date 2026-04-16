@@ -23,7 +23,7 @@ import jakarta.annotation.Generated;
  * ImageResponse
  */
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2026-04-16T10:34:11.527249+01:00[Europe/London]", comments = "Generator version: 7.18.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2026-04-16T12:26:41.337736+01:00[Europe/London]", comments = "Generator version: 7.18.0")
 public class ImageResponse implements Serializable {
 
   private static final long serialVersionUID = 1L;
