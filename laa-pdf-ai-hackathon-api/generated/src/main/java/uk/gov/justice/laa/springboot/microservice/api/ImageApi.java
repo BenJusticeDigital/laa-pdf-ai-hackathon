@@ -6,6 +6,8 @@
 package uk.gov.justice.laa.springboot.microservice.api;
 
 import uk.gov.justice.laa.springboot.microservice.model.ImageResponse;
+import uk.gov.justice.laa.springboot.microservice.model.ImageSummary;
+import java.util.UUID;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -30,10 +32,69 @@ import java.util.Map;
 import java.util.Optional;
 import jakarta.annotation.Generated;
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2026-04-16T12:53:35.860196+01:00[Europe/London]", comments = "Generator version: 7.18.0")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2026-04-16T13:27:37.508336+01:00[Europe/London]", comments = "Generator version: 7.18.0")
 @Validated
 @Tag(name = "image", description = "the image API")
 public interface ImageApi {
+
+    String PATH_GET_IMAGE_BY_ID = "/api/v1/image/{id}";
+    /**
+     * GET /api/v1/image/{id} : Get image submission by ID
+     *
+     * @param id The ID of the image submission to retrieve (required)
+     * @return Success (status code 200)
+     *         or Not found (status code 404)
+     *         or Internal server error (status code 500)
+     */
+    @Operation(
+        operationId = "getImageById",
+        summary = "Get image submission by ID",
+        tags = { "image" },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Success", content = {
+                @Content(mediaType = "application/json", schema = @Schema(implementation = ImageResponse.class))
+            }),
+            @ApiResponse(responseCode = "404", description = "Not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.GET,
+        value = ImageApi.PATH_GET_IMAGE_BY_ID,
+        produces = { "application/json" }
+    )
+    ResponseEntity<ImageResponse> getImageById(
+        @NotNull @Parameter(name = "id", description = "The ID of the image submission to retrieve", required = true, in = ParameterIn.PATH) @PathVariable("id") UUID id
+    );
+
+
+    String PATH_LIST_IMAGES = "/api/v1/image";
+    /**
+     * GET /api/v1/image : List all image submissions
+     *
+     * @return Success (status code 200)
+     *         or Internal server error (status code 500)
+     */
+    @Operation(
+        operationId = "listImages",
+        summary = "List all image submissions",
+        tags = { "image" },
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Success", content = {
+                @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ImageSummary.class)))
+            }),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+        }
+    )
+    @RequestMapping(
+        method = RequestMethod.GET,
+        value = ImageApi.PATH_LIST_IMAGES,
+        produces = { "application/json" }
+    )
+    ResponseEntity<List<ImageSummary>> listImages(
+        
+    );
+
 
     String PATH_UPLOAD_IMAGE = "/api/v1/image";
     /**

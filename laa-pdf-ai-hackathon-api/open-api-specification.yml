@@ -51,35 +51,6 @@ paths:
         '500':
           description: 'Internal server error'
 
-  /api/v1/image:
-    post:
-      tags:
-        - image
-      summary: Upload an image for processing
-      operationId: uploadImage
-      requestBody:
-        description: Multipart form containing an image file and associated metadata
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/ImageRequestBody'
-      responses:
-        '201':
-          description: 'Created'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ImageResponse'
-        '400':
-          description: 'Bad request'
-        '401':
-          description: 'Unauthorized'
-        '403':
-          description: 'Forbidden'
-        '500':
-          description: 'Internal server error'
-
   /api/v1/items/{id}:
     get:
       summary: Get item by id
@@ -170,6 +141,77 @@ paths:
         '500':
           description: 'Internal server error'
 
+  /api/v1/image:
+    get:
+      tags:
+        - image
+      summary: List all image submissions
+      operationId: listImages
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ImageSummary'
+        '500':
+          description: 'Internal server error'
+    post:
+      tags:
+        - image
+      summary: Upload an image for processing
+      operationId: uploadImage
+      requestBody:
+        description: Multipart form containing an image file and associated metadata
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ImageRequestBody'
+      responses:
+        '201':
+          description: 'Created'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageResponse'
+        '400':
+          description: 'Bad request'
+        '401':
+          description: 'Unauthorized'
+        '403':
+          description: 'Forbidden'
+        '500':
+          description: 'Internal server error'
+
+  /api/v1/image/{id}:
+    get:
+      tags:
+        - image
+      summary: Get image submission by ID
+      operationId: getImageById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the image submission to retrieve
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageResponse'
+        '404':
+          description: 'Not found'
+        '500':
+          description: 'Internal server error'
+
 components:
   schemas:
     Item:
@@ -199,6 +241,24 @@ components:
       type: array
       items:
         $ref: "#/components/schemas/Item"
+
+    ImageSummary:
+      required:
+        - id
+        - email
+        - submittedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The unique identifier of the submission
+        email:
+          type: string
+          description: Email address of the submitter
+        submittedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the submission was received
 
     ImageRequestBody:
       required:
