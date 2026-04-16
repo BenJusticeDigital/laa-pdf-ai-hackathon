@@ -33,6 +33,8 @@ Legal aid providers photograph a completed CW1 form (page 1). The tool extracts 
 
 ![CW1 digital service end-to-end flow](docs/cw1_digital_service_flow_v2.svg)
 
+See [happy and unhappy paths](docs/happy-unhappy-paths.md) for how the tool behaves across different scenarios — from a clear image and smooth submission through to Gemini errors, failed notifications, and ambiguous handwriting.
+
 ---
 
 ## Requirements
