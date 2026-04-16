@@ -13,10 +13,17 @@ spring:
     username: sa
     password: password
 
-  #do not auto create db schema, use .sql scripts
+  #do not auto create db schema, use Flyway migrations
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: validate
+  sql:
+    init:
+      mode: never
+
+flyway:
+  enabled: true
+  baseline-on-migrate: true
 
 management:
   server:
