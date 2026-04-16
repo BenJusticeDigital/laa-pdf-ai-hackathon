@@ -1,0 +1,307 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/ministryofjustice/laa-pdf-ai-hackathon/docs/ocr-response-schema.json",
+  "title": "CW1 OCR Extraction Response",
+  "description": "The JSON structure returned by the AI/OCR model after processing a scanned CW1 Legal Help form. Each extracted field includes a value, confidence score, and optional bounding box coordinates for traceability.",
+  "type": "object",
+  "required": ["extraction_id", "status", "model", "source_document", "extracted_at", "form_data"],
+  "properties": {
+    "extraction_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this extraction job"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["complete", "partial", "failed"],
+      "description": "Overall extraction status. 'partial' means some fields could not be read."
+    },
+    "model": {
+      "type": "object",
+      "description": "Information about the AI model that performed the extraction",
+      "required": ["provider", "model_id", "version"],
+      "properties": {
+        "provider": {
+          "type": "string",
+          "description": "OCR provider name (e.g. 'azure', 'aws_textract', 'google_document_ai', 'tesseract')"
+        },
+        "model_id": {
+          "type": "string",
+          "description": "Specific model identifier"
+        },
+        "version": {
+          "type": "string",
+          "description": "Model version string"
+        }
+      }
+    },
+    "source_document": {
+      "type": "object",
+      "description": "Metadata about the uploaded source document",
+      "required": ["filename", "page_count", "quality_assessment"],
+      "properties": {
+        "filename": {
+          "type": "string",
+          "description": "Original uploaded filename"
+        },
+        "mime_type": {
+          "type": "string",
+          "description": "MIME type of the uploaded file"
+        },
+        "page_count": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of pages detected in the document"
+        },
+        "quality_assessment": {
+          "type": "object",
+          "description": "Document quality metrics that may affect extraction accuracy",
+          "properties": {
+            "overall_quality": {
+              "type": "string",
+              "enum": ["good", "fair", "poor"],
+              "description": "Overall scan quality rating"
+            },
+            "dpi_estimate": {
+              "type": "integer",
+              "description": "Estimated DPI of the scanned document"
+            },
+            "skew_degrees": {
+              "type": "number",
+              "description": "Detected page skew in degrees (0 = perfectly straight)"
+            },
+            "issues": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "Detected quality issues (e.g. 'blurry_region', 'faint_text', 'coffee_stain', 'folded_corner')"
+            }
+          }
+        }
+      }
+    },
+    "extracted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when extraction completed"
+    },
+    "processing_time_ms": {
+      "type": "integer",
+      "description": "Time taken for extraction in milliseconds"
+    },
+    "overall_confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Mean confidence score across all extracted fields (0.0–1.0)"
+    },
+    "fields_extracted": {
+      "type": "integer",
+      "description": "Number of fields successfully extracted"
+    },
+    "fields_total": {
+      "type": "integer",
+      "description": "Total number of fields the model attempted to extract"
+    },
+    "form_data": {
+      "type": "object",
+      "description": "Extracted CW1 form data, grouped by form section",
+      "required": ["client_details"],
+      "properties": {
+        "application": {
+          "$ref": "#/definitions/application_section"
+        },
+        "provider_details": {
+          "$ref": "#/definitions/provider_details_section"
+        },
+        "client_details": {
+          "$ref": "#/definitions/client_details_section"
+        },
+        "case_details": {
+          "$ref": "#/definitions/case_details_section"
+        },
+        "equal_opportunities": {
+          "$ref": "#/definitions/equal_opportunities_section"
+        },
+        "proceedings": {
+          "$ref": "#/definitions/proceedings_section"
+        },
+        "costs": {
+          "$ref": "#/definitions/costs_section"
+        },
+        "declaration": {
+          "$ref": "#/definitions/declaration_section"
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "description": "Non-fatal extraction warnings the caseworker should review",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": { "type": "string" },
+          "message": { "type": "string" },
+          "field": { "type": "string", "description": "Dot-path to the affected field (e.g. 'client_details.date_of_birth')" },
+          "severity": { "type": "string", "enum": ["info", "warning", "error"] }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "extracted_field": {
+      "description": "A single field extracted by OCR. Contains the value, a confidence score, and optionally the bounding box where it was found on the page.",
+      "type": "object",
+      "required": ["value", "confidence"],
+      "properties": {
+        "value": {
+          "description": "The extracted value. null if the field could not be read."
+        },
+        "raw_value": {
+          "type": ["string", "null"],
+          "description": "The raw text as read from the document before normalisation (e.g. '15/O3/1987' before correcting to '1987-03-15')"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Model confidence for this field (0.0 = no confidence, 1.0 = certain)"
+        },
+        "source_page": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Page number where this field was found"
+        },
+        "bounding_box": {
+          "$ref": "#/definitions/bounding_box"
+        }
+      }
+    },
+    "bounding_box": {
+      "description": "Coordinates of the field on the page, as normalised values (0.0–1.0) relative to page dimensions. Origin is top-left.",
+      "type": "object",
+      "required": ["top", "left", "width", "height"],
+      "properties": {
+        "top":    { "type": "number", "minimum": 0, "maximum": 1 },
+        "left":   { "type": "number", "minimum": 0, "maximum": 1 },
+        "width":  { "type": "number", "minimum": 0, "maximum": 1 },
+        "height": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "application_section": {
+      "type": "object",
+      "description": "Top-level application metadata from the form header",
+      "properties": {
+        "application_reference": { "$ref": "#/definitions/extracted_field" },
+        "form_type": { "$ref": "#/definitions/extracted_field" },
+        "is_exceptional_case_funding": { "$ref": "#/definitions/extracted_field" },
+        "ecf_reference": { "$ref": "#/definitions/extracted_field" }
+      }
+    },
+    "provider_details_section": {
+      "type": "object",
+      "description": "Section 1 of the CW1 form — solicitor/provider information",
+      "properties": {
+        "provider_name": { "$ref": "#/definitions/extracted_field" },
+        "laa_account_number": { "$ref": "#/definitions/extracted_field" },
+        "supplier_number": { "$ref": "#/definitions/extracted_field" },
+        "office_name": { "$ref": "#/definitions/extracted_field" },
+        "office_address": { "$ref": "#/definitions/extracted_field" },
+        "office_postcode": { "$ref": "#/definitions/extracted_field" },
+        "office_telephone": { "$ref": "#/definitions/extracted_field" },
+        "solicitor_name": { "$ref": "#/definitions/extracted_field" },
+        "solicitor_reference": { "$ref": "#/definitions/extracted_field" }
+      }
+    },
+    "client_details_section": {
+      "type": "object",
+      "description": "Client personal details from the CW1 form",
+      "properties": {
+        "title": { "$ref": "#/definitions/extracted_field" },
+        "first_name": { "$ref": "#/definitions/extracted_field" },
+        "initials": { "$ref": "#/definitions/extracted_field" },
+        "surname": { "$ref": "#/definitions/extracted_field" },
+        "surname_at_birth": { "$ref": "#/definitions/extracted_field" },
+        "date_of_birth": { "$ref": "#/definitions/extracted_field" },
+        "national_insurance_number": { "$ref": "#/definitions/extracted_field" },
+        "sex": { "$ref": "#/definitions/extracted_field" },
+        "marital_status": { "$ref": "#/definitions/extracted_field" },
+        "place_of_birth_town": { "$ref": "#/definitions/extracted_field" },
+        "job": { "$ref": "#/definitions/extracted_field" },
+        "current_address": { "$ref": "#/definitions/extracted_field" },
+        "current_address_line2": { "$ref": "#/definitions/extracted_field" },
+        "postcode": { "$ref": "#/definitions/extracted_field" }
+      }
+    },
+    "case_details_section": {
+      "type": "object",
+      "description": "Details of the legal matter",
+      "properties": {
+        "category_of_law": { "$ref": "#/definitions/extracted_field" },
+        "matter_type": { "$ref": "#/definitions/extracted_field" },
+        "case_reference": { "$ref": "#/definitions/extracted_field" },
+        "court_name": { "$ref": "#/definitions/extracted_field" },
+        "proceedings_type": { "$ref": "#/definitions/extracted_field" },
+        "date_case_started": { "$ref": "#/definitions/extracted_field" },
+        "date_case_ended": { "$ref": "#/definitions/extracted_field" }
+      }
+    },
+    "equal_opportunities_section": {
+      "type": "object",
+      "description": "Equal opportunities monitoring data",
+      "properties": {
+        "ethnicity": { "$ref": "#/definitions/extracted_field" },
+        "disability": {
+          "type": "object",
+          "description": "Disability checkbox flags — each is an extracted boolean field",
+          "properties": {
+            "not_considered_disabled":  { "$ref": "#/definitions/extracted_field" },
+            "mental_health":            { "$ref": "#/definitions/extracted_field" },
+            "blind":                    { "$ref": "#/definitions/extracted_field" },
+            "learning_disability":      { "$ref": "#/definitions/extracted_field" },
+            "long_standing_illness":    { "$ref": "#/definitions/extracted_field" },
+            "mobility":                 { "$ref": "#/definitions/extracted_field" },
+            "deaf":                     { "$ref": "#/definitions/extracted_field" },
+            "hearing_impaired":         { "$ref": "#/definitions/extracted_field" },
+            "visually_impaired":        { "$ref": "#/definitions/extracted_field" },
+            "other":                    { "$ref": "#/definitions/extracted_field" },
+            "unknown":                  { "$ref": "#/definitions/extracted_field" },
+            "prefer_not_to_say":        { "$ref": "#/definitions/extracted_field" }
+          }
+        }
+      }
+    },
+    "proceedings_section": {
+      "type": "object",
+      "description": "Proceedings and scope details",
+      "properties": {
+        "proceedings_description": { "$ref": "#/definitions/extracted_field" },
+        "scope_limitation": { "$ref": "#/definitions/extracted_field" },
+        "delegated_functions_used": { "$ref": "#/definitions/extracted_field" },
+        "delegated_functions_date": { "$ref": "#/definitions/extracted_field" }
+      }
+    },
+    "costs_section": {
+      "type": "object",
+      "description": "Costs claimed on the form",
+      "properties": {
+        "profit_costs": { "$ref": "#/definitions/extracted_field" },
+        "disbursements": { "$ref": "#/definitions/extracted_field" },
+        "counsel_costs": { "$ref": "#/definitions/extracted_field" },
+        "vat_on_profit_costs": { "$ref": "#/definitions/extracted_field" },
+        "vat_on_disbursements": { "$ref": "#/definitions/extracted_field" },
+        "vat_on_counsel": { "$ref": "#/definitions/extracted_field" },
+        "travel_and_waiting": { "$ref": "#/definitions/extracted_field" },
+        "total_claim": { "$ref": "#/definitions/extracted_field" }
+      }
+    },
+    "declaration_section": {
+      "type": "object",
+      "description": "Signature and declaration section",
+      "properties": {
+        "solicitor_signature_present": { "$ref": "#/definitions/extracted_field" },
+        "client_signature_present": { "$ref": "#/definitions/extracted_field" },
+        "date_signed": { "$ref": "#/definitions/extracted_field" }
+      }
+    }
+  }
+}

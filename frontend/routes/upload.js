@@ -53,11 +53,14 @@ router.post('/', async (req, res) => {
     });
   }
 
-  // Mock mode — generate a fake CW1 extraction and go straight to review
+  // Mock mode — generate a fake CW1 extraction, show processing animation
   if (USE_MOCK) {
     const mockData = generateMockCw1();
     reviewStore.set(mockData.id, mockData);
-    return res.redirect(`/review/${mockData.id}?mock=true`);
+    return res.render('processing.njk', {
+      redirectUrl: `/review/${mockData.id}?mock=true`,
+      mockMode: true,
+    });
   }
 
   try {
