@@ -1,0 +1,20 @@
+{
+  "name": "laa-pdf-ai-hackathon-frontend",
+  "version": "1.0.0",
+  "description": "GOV.UK frontend for the LAA CW1 form image upload service",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.9",
+    "express": "^4.21.2",
+    "express-fileupload": "^1.5.1",
+    "govuk-frontend": "^5.8.0",
+    "nunjucks": "^3.2.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}

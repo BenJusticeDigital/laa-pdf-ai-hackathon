@@ -1,0 +1,104 @@
+{% extends "layout.njk" %}
+
+{% block pageTitle %}
+  {% if errors and errors.length %}Error: {% endif %}Upload a CW1 form image — LAA CW1 Form Submission
+{% endblock %}
+
+{% block content %}
+
+  {% if errors and errors.length %}
+    <div class="govuk-error-summary" data-module="govuk-error-summary">
+      <div role="alert">
+        <h2 class="govuk-error-summary__title">There is a problem</h2>
+        <div class="govuk-error-summary__body">
+          <ul class="govuk-list govuk-error-summary__list">
+            {% for error in errors %}
+              <li>
+                {% if error.field %}
+                  <a href="#{{ error.field }}">{{ error.text }}</a>
+                {% else %}
+                  {{ error.text }}
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <h1 class="govuk-heading-l">Upload a CW1 form image</h1>
+  <p class="govuk-body">
+    Upload a scanned image of a completed CW1 Legal Help form. The service will
+    read the form using OCR and extract the data for you to review and correct.
+  </p>
+  <p class="govuk-body">Accepted file types: JPG, PNG, PDF, TIFF.</p>
+
+  <form method="POST" action="/" enctype="multipart/form-data" novalidate>
+
+    {# Image file upload #}
+    {% set imageError = null %}
+    {% for error in errors %}
+      {% if error.field === "image" %}{% set imageError = error.text %}{% endif %}
+    {% endfor %}
+
+    <div class="govuk-form-group {% if imageError %}govuk-form-group--error{% endif %}">
+      <label class="govuk-label govuk-label--m" for="image">
+        Upload form image
+      </label>
+      <div id="image-hint" class="govuk-hint">
+        The file must be a scan or photo of the completed paper form.
+      </div>
+      {% if imageError %}
+        <p id="image-error" class="govuk-error-message">
+          <span class="govuk-visually-hidden">Error:</span> {{ imageError }}
+        </p>
+      {% endif %}
+      <input
+        class="govuk-file-upload {% if imageError %}govuk-file-upload--error{% endif %}"
+        id="image"
+        name="image"
+        type="file"
+        accept=".jpg,.jpeg,.png,.pdf,.tiff,.tif"
+        aria-describedby="image-hint{% if imageError %} image-error{% endif %}"
+      >
+    </div>
+
+    {# Email address #}
+    {% set emailError = null %}
+    {% for error in errors %}
+      {% if error.field === "email" %}{% set emailError = error.text %}{% endif %}
+    {% endfor %}
+
+    <div class="govuk-form-group {% if emailError %}govuk-form-group--error{% endif %}">
+      <label class="govuk-label govuk-label--m" for="email">
+        Your email address
+      </label>
+      <div id="email-hint" class="govuk-hint">
+        We'll use this to identify your submission.
+      </div>
+      {% if emailError %}
+        <p id="email-error" class="govuk-error-message">
+          <span class="govuk-visually-hidden">Error:</span> {{ emailError }}
+        </p>
+      {% endif %}
+      <input
+        class="govuk-input govuk-input--width-20 {% if emailError %}govuk-input--error{% endif %}"
+        id="email"
+        name="email"
+        type="email"
+        inputmode="email"
+        autocomplete="email"
+        spellcheck="false"
+        value="{{ values.email or '' }}"
+        aria-describedby="email-hint{% if emailError %} email-error{% endif %}"
+      >
+    </div>
+
+    <button class="govuk-button" data-module="govuk-button">
+      Upload and extract data
+    </button>
+
+  </form>
+
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "layout.njk" %}
+
+{% block pageTitle %}Image submitted — LAA CW1 Form Submission{% endblock %}
+
+{% block content %}
+
+  <div class="govuk-panel govuk-panel--confirmation">
+    <h1 class="govuk-panel__title">Image submitted</h1>
+    <div class="govuk-panel__body">
+      Submission reference<br>
+      <strong>{{ id }}</strong>
+    </div>
+  </div>
+
+  <p class="govuk-body">Your scanned form image has been received and is being processed.</p>
+
+  <h2 class="govuk-heading-m">What happens next</h2>
+  <p class="govuk-body">
+    The service will use OCR to extract the data from your CW1 form.
+    Once processed, you will be able to review and correct the extracted information.
+  </p>
+
+  <p class="govuk-body">
+    <a href="/" class="govuk-link">Submit another image</a>
+  </p>
+
+{% endblock %}
