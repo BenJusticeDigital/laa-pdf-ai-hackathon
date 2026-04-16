@@ -1,8 +1,10 @@
 package uk.gov.justice.laa.springboot.microservice.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,5 +32,16 @@ public class OcrOutputEntity {
    * Stored as a VARCHAR containing serialized JSON.
    */
   private String data;
+
+  /**
+   * Email address of the submitter.
+   */
+  private String email;
+
+  /**
+   * Timestamp when the submission was received.
+   */
+  @Column(name = "submitted_at")
+  private OffsetDateTime submittedAt;
 }
 

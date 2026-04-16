@@ -1,8 +1,9 @@
 package uk.gov.justice.laa.springboot.microservice.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Collections;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -11,16 +12,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import uk.gov.justice.laa.springboot.microservice.entity.OcrOutputEntity;
 import uk.gov.justice.laa.springboot.microservice.model.Cw1FormData;
 import uk.gov.justice.laa.springboot.microservice.model.ImageResponse;
 import uk.gov.justice.laa.springboot.microservice.model.ImageSummary;
 import uk.gov.justice.laa.springboot.microservice.ocr.OcrProvider;
+import uk.gov.justice.laa.springboot.microservice.repository.OcrOutputRepository;
 
 /**
  * Service for handling image submissions.
  *
  * <p>Delegates OCR/AI extraction to the configured {@link OcrProvider},
- * keeping the service layer decoupled from any specific AI vendor.</p>
+ * persists the results to H2 via {@link OcrOutputRepository}, and provides
+ * retrieval methods for the dashboard API.</p>
  */
 @Slf4j
 @Service
@@ -28,16 +32,13 @@ import uk.gov.justice.laa.springboot.microservice.ocr.OcrProvider;
 public class ImageService {
 
   private final OcrProvider ocrProvider;
-  private final ObjectMapper objectMapper = new ObjectMapper();
+  private final OcrOutputRepository ocrOutputRepository;
+  private final ObjectMapper objectMapper;
 
   /**
    * Accepts an uploaded image and associated metadata, passes it to the
-   * configured OCR provider for structured CW1 data extraction, and returns
-   * the result with a unique submission ID.
-   *
-   * @param image the uploaded image file
-   * @param email the email address of the submitter
-   * @return an {@link ImageResponse} containing the submission ID and extracted CW1 form data
+   * configured OCR provider for structured CW1 data extraction, persists
+   * the result, and returns it with a unique submission ID.
    */
   public ImageResponse processImage(MultipartFile image, String email) {
     UUID id = UUID.randomUUID();
@@ -53,6 +54,20 @@ public class ImageService {
     Map<String, Object> dataMap = objectMapper.convertValue(
         formData, new TypeReference<Map<String, Object>>() {});
 
+    // Persist to H2
+    try {
+      String jsonData = objectMapper.writeValueAsString(dataMap);
+      OcrOutputEntity entity = OcrOutputEntity.builder()
+          .id(id)
+          .data(jsonData)
+          .email(email)
+          .submittedAt(OffsetDateTime.now())
+          .build();
+      ocrOutputRepository.save(entity);
+      log.info("Saved OCR output to database [id={}]", id);
+    } catch (JsonProcessingException e) {
+      log.error("Failed to serialise extracted data for persistence [id={}]", id, e);
+    }
 
     ImageResponse response = new ImageResponse(id);
     response.setExtractedData(dataMap);
@@ -61,24 +76,30 @@ public class ImageService {
 
   /**
    * Returns a list of all image submissions.
-   * TODO: wire to database once persistence is in place.
-   *
-   * @return list of {@link ImageSummary}
    */
   public List<ImageSummary> listImages() {
-    log.info("Listing all image submissions (stub — DB not yet wired)");
-    return Collections.emptyList();
+    log.info("Listing all image submissions");
+    return ocrOutputRepository.findAll().stream()
+        .map(entity -> new ImageSummary(entity.getId(), entity.getEmail(), entity.getSubmittedAt()))
+        .toList();
   }
 
   /**
-   * Returns a single image submission by ID.
-   * TODO: wire to database once persistence is in place.
-   *
-   * @param id the submission ID
-   * @return an {@link Optional} containing the {@link ImageResponse}, or empty if not found
+   * Returns a single image submission by ID, including its extracted data.
    */
   public Optional<ImageResponse> getImageById(UUID id) {
-    log.info("Getting image submission [id={}] (stub — DB not yet wired)", id);
-    return Optional.empty();
+    log.info("Getting image submission [id={}]", id);
+    return ocrOutputRepository.findById(id)
+        .map(entity -> {
+          ImageResponse response = new ImageResponse(entity.getId());
+          try {
+            Map<String, Object> dataMap = objectMapper.readValue(
+                entity.getData(), new TypeReference<Map<String, Object>>() {});
+            response.setExtractedData(dataMap);
+          } catch (JsonProcessingException e) {
+            log.error("Failed to deserialise stored OCR data [id={}]", id, e);
+          }
+          return response;
+        });
   }
 }
