@@ -35,6 +35,8 @@ Legal aid providers photograph a completed CW1 form (page 1). The tool extracts 
 
 See [happy and unhappy paths](docs/happy-unhappy-paths.md) for how the tool behaves across different scenarios — from a clear image and smooth submission through to Gemini errors, failed notifications, and ambiguous handwriting.
 
+For a step-by-step walkthrough of the UI with annotated screenshots, see the [user flow walkthrough](docs/user-flow.md).
+
 ---
 
 ## Requirements
