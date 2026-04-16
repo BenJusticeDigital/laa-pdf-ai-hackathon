@@ -3,6 +3,7 @@
 {% from "govuk/components/input/macro.njk"         import govukInput %}
 {% from "govuk/components/button/macro.njk"        import govukButton %}
 {% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
+{% from "govuk/components/inset-text/macro.njk"    import govukInsetText %}
 
 {% extends "layout.njk" %}
 
@@ -35,6 +36,22 @@
     Upload a scanned image of a completed CW1 Legal Help form. The service will
     read the form using OCR and extract the data for you to review and correct.
   </p>
+
+  <div class="govuk-!-margin-bottom-6">
+    <h2 class="govuk-heading-s govuk-!-margin-bottom-1">
+      <span class="govuk-tag govuk-tag--blue govuk-!-margin-right-1">AI</span>
+      How this service uses artificial intelligence
+    </h2>
+    {{ govukInsetText({
+      html: '<p class="govuk-body">This service uses an AI-powered optical character recognition (OCR) model to extract information from your scanned form.</p>
+      <ul class="govuk-list govuk-list--bullet">
+        <li>The AI reads text and checkbox data from the uploaded image</li>
+        <li>Extracted data is shown to you for <strong>review and correction</strong> before anything is submitted</li>
+        <li>No decisions are made by the AI — a caseworker always has the final say</li>
+        <li>The uploaded document is processed in the UK and is not used to train AI models</li>
+      </ul>'
+    }) }}
+  </div>
 
   <form method="POST" action="/" enctype="multipart/form-data" novalidate>
 

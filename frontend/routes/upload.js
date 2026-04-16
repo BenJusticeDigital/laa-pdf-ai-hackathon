@@ -5,6 +5,7 @@ const fileUpload = require('express-fileupload');
 const axios = require('axios');
 const FormData = require('form-data');
 const { generateMockCw1 } = require('../mock/cw1Generator');
+const { sendConfirmationEmail } = require('../services/notify');
 
 const router = express.Router();
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8081';
@@ -56,6 +57,7 @@ router.post('/', async (req, res) => {
   // Mock mode — generate a fake CW1 extraction, show processing animation
   if (USE_MOCK) {
     const mockData = generateMockCw1();
+    mockData._submitterEmail = email.trim();
     reviewStore.set(mockData.id, mockData);
     return res.render('processing.njk', {
       redirectUrl: `/review/${mockData.id}?mock=true`,
@@ -231,11 +233,24 @@ router.get('/success', (req, res) => {
 });
 
 // POST /confirm — final submission from review page
-router.post('/confirm', (req, res) => {
+router.post('/confirm', async (req, res) => {
   const { id } = req.body;
   if (!id) return res.redirect('/');
+
+  const data = reviewStore.get(id);
+  const email = data?._submitterEmail;
+
+  if (email && data) {
+    const clientName = [data.title, data.first_name, data.surname].filter(Boolean).join(' ') || 'Unknown';
+    await sendConfirmationEmail(email, {
+      reference: data.application_reference || id,
+      client_name: clientName,
+      submitted_at: new Date().toLocaleString('en-GB', { dateStyle: 'long', timeStyle: 'short' }),
+    });
+  }
+
   reviewStore.delete(id);
-  res.render('success.njk', { id, mockMode: USE_MOCK });
+  res.render('success.njk', { id, mockMode: USE_MOCK, emailSent: !!email });
 });
 
 module.exports = router;

@@ -22,6 +22,10 @@
 
   <p class="govuk-body">Your scanned form image has been received and is being processed.</p>
 
+  {% if emailSent %}
+    <p class="govuk-body">We have sent a confirmation email.</p>
+  {% endif %}
+
   <h2 class="govuk-heading-m">What happens next</h2>
   <p class="govuk-body">
     The service will use OCR to extract the data from your CW1 form.
