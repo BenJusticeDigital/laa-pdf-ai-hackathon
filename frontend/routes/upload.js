@@ -6,6 +6,7 @@ const axios = require('axios');
 const FormData = require('form-data');
 const { generateMockCw1 } = require('../mock/cw1Generator');
 const { sendConfirmationEmail } = require('../services/notify');
+const { mapExtractedData } = require('../utils/fieldMapper');
 
 const router = express.Router();
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8081';
@@ -58,9 +59,10 @@ router.post('/', async (req, res) => {
   if (USE_MOCK) {
     const mockData = generateMockCw1();
     mockData._submitterEmail = email.trim();
+    mockData._mockMode = true;
     reviewStore.set(mockData.id, mockData);
     return res.render('processing.njk', {
-      redirectUrl: `/review/${mockData.id}?mock=true`,
+      redirectUrl: `/review/${mockData.id}`,
       mockMode: true,
     });
   }
@@ -77,7 +79,24 @@ router.post('/', async (req, res) => {
       headers: form.getHeaders(),
     });
 
-    return res.redirect(`/success?id=${response.data.id}`);
+    const id = String(response.data.id);
+    const extractedData = response.data.extractedData;
+
+    if (extractedData && Object.keys(extractedData).length > 0) {
+      const data = mapExtractedData(extractedData);
+      data.id = id;
+      data._submitterEmail = email.trim();
+      data._mockMode = false;
+      reviewStore.set(id, data);
+
+      return res.render('processing.njk', {
+        redirectUrl: `/review/${id}`,
+        mockMode: false,
+      });
+    }
+
+    // No extracted data — fall back to simple success page
+    return res.redirect(`/success?id=${id}`);
   } catch (err) {
     const status = err.response ? err.response.status : null;
     const message =
@@ -131,7 +150,7 @@ router.get('/review/:id', (req, res) => {
   const data = reviewStore.get(req.params.id);
   if (!data) return res.redirect('/');
 
-  const mockMode = req.query.mock === 'true';
+  const mockMode = data._mockMode === true;
 
   // Detect fields the OCR couldn't extract (null or empty string)
   const missingFields = TRACKED_FIELDS
@@ -163,7 +182,7 @@ router.post('/edit/:id/application', express.urlencoded({ extended: true }), (re
   data.application_reference     = req.body.application_reference || data.application_reference;
   data.is_exceptional_case_funding = req.body.is_exceptional_case_funding === 'true';
 
-  res.redirect(`/review/${req.params.id}?mock=true`);
+  res.redirect(`/review/${req.params.id}`);
 });
 
 router.get('/edit/:id/client-details', (req, res) => {
@@ -193,7 +212,7 @@ router.post('/edit/:id/client-details', express.urlencoded({ extended: true }), 
     postcode:                 req.body.postcode,
   });
 
-  res.redirect(`/review/${req.params.id}?mock=true`);
+  res.redirect(`/review/${req.params.id}`);
 });
 
 router.get('/edit/:id/equal-opportunities', (req, res) => {
@@ -222,7 +241,7 @@ router.post('/edit/:id/equal-opportunities', express.urlencoded({ extended: true
 
   data.ethnicity = req.body.ethnicity;
 
-  res.redirect(`/review/${req.params.id}?mock=true`);
+  res.redirect(`/review/${req.params.id}`);
 });
 
 // GET /success — confirmation page (real mode)
